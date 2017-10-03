@@ -11,3 +11,17 @@ body, html {
 #map {
 	height: 100%;
 }
+
+.gui {
+	z-index: 900;
+}
+
+#fab {
+	position: absolute;
+	bottom: 1.5em;
+	right: 1.5em;
+}
+
+.modal.bottom-sheet {
+	max-height: 70%;
+}

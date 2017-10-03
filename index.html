@@ -14,7 +14,20 @@
 	<title>GIS4DIS collector</title>
 </head>
 <body>
+  <nav>
+    <div class="nav-wrapper">
+      <ul class="left">
+        <li><a href="#"><i class="material-icons">cloud</i></a></li>
+      </ul>
+      <ul class="right">
+        <li><a href="#bottom-sheet" onclick="loadToBottomSheet('register.html')" class="modal-trigger"><i class="material-icons">account_circle</i></a></li>
+      </ul>
+    </div>
+  </nav>
 	<div id="map"></div>
+  <a id="fab" data-target="bottom-sheet" class="gui btn-floating btn-large waves-effect waves-light blue modal-trigger" onclick="loadToBottomSheet('observation.html')"><i class="material-icons">add</i></a>
+  <div id="bottom-sheet" class="modal bottom-sheet">
+
 </body>
   <!--Import jQuery before materialize.js-->
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
