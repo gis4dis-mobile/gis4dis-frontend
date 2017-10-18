@@ -12,7 +12,7 @@ var themes = (() => {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': 'http://zelda.sci.muni.cz/api/config/',
+		'url': '/rest/api/config/',
 		'dataType': 'json',
 		'success': data => json = data
 	});
@@ -30,7 +30,7 @@ var config = (() => {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': 'http://zelda.sci.muni.cz/api/config/',
+		'url': '/rest/api/config/',
 		'dataType': 'json',
 		'success': data => json = data
 	});
@@ -65,7 +65,7 @@ observationsLayer.addData(function() {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': 'http://zelda.sci.muni.cz/api/observations',
+		'url': '/rest/api/observations',
 		'dataType': 'json',
 		'success': (data) => json = data
 	});
@@ -268,12 +268,11 @@ function getFormData($form) {
 			phenomenon: phenomenonId
 		}
 	});
-	console.log(properties);
 	return properties;
 }
 
 function sendObservation(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
-	$.post("http://zelda.sci.muni.cz/api/observations/", observationProperties, (data, status) => console.log(status, data));
+	$.post("/rest/api/observations/", JSON.stringify(observationProperties), (data, status) => console.log(status, data));
 }

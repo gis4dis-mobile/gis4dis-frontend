@@ -1,0 +1,23 @@
+{
+  "name": "collect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "leaflet": "^1.2.0",
+    "materialize-css": "^0.100.1",
+    "requirejs": "^2.3.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@147.251.22.168/opt/git/collect"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
