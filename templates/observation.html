@@ -1,17 +1,41 @@
 <div class="modal-content">
-  <h4>New observation</h4>
-  <form>
+  <a id="modalHelp" href="#hint" onclick="showHint(themes['Dry vegetation (trees)'].help)" class="waves-effect waves-light modal-trigger"><i class="material-icons">help</i></a>
+  <h4>Dry vegetation (trees)</h4>
+  <br>
+  <form name="Dry vegetation (trees)" action="/api/observations/" method="POST" enctype="multipart/form-data">
     <div class="input-field">
-      <input id="name" type="text" class="validate">
-      <label for="name">Name</label>
+      <select name="location">
+        <option value="" disabled selected>Choose an option</option>
+        <option value="1">city or other built-up area</option>
+        <option value="2">rock outcrop or other extreme habitat</option>
+        <option value="3">solitaire in the landscape</option>
+        <option value="4">forest area</option>
+      </select>
+      <label>Location</label>
     </div>
     <div class="input-field">
-      <input id="description" type="text" class="validate">
-      <label for="description">Description</label>
+      <input id="latitude" name="latitude" type="number" step="any" style="display: none;">
+      <label for="latitude">Latitude</label>
     </div>
     <div class="input-field">
-      <input id="note" type="text" class="validate">
-      <label for="note">Note</label>
+      <input id="longitude" name="longitude" type="number" step="any" style="display: none;">
+      <label for="longitude">Longitude</label>
+    </div>
+    <div class="input-field">
+      <select name="tree-type">
+        <option value="" disabled selected>Choose an option</option>
+        <option value="1">coniferous</option>
+        <option value="2">decisious</option>
+      </select>
+      <label>Type of tree</label>
+    </div>
+    <div class="input-field">
+      <input id="tree-height" name="tree-height" type="number" step="0.1" class="validate">
+      <label for="tree-height">Tree height</label>
+    </div>
+    <div class="input-field">
+      <input id="trunk-diameter" name="trunk-diameter" type="number" step="0.01" class="validate">
+      <label for="trunk-diameter">Trunk diameter</label>
     </div>
     <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
       <i class="material-icons right">send</i>

@@ -8,6 +8,11 @@ body, html {
 	height: 100%;
 }
 
+body {
+	display: grid;
+	grid-template-rows: 56px auto;
+}
+
 #map {
 	height: 100%;
 }
@@ -16,12 +21,28 @@ body, html {
 	z-index: 900;
 }
 
-#fab {
+/*#fab {
 	position: absolute;
 	bottom: 1.5em;
 	right: 1.5em;
+}*/
+
+#geolocationSwitch {
+	position: absolute;
+	bottom: 1.5em;
+	left: 1.5em;
 }
 
 .modal.bottom-sheet {
 	max-height: 70%;
+}
+
+#modalHelp {
+  position: absolute;
+  top: 2.15em;
+  right: 1.5em;
+}
+
+.material-tooltip {
+	border-radius: 5px;
 }
