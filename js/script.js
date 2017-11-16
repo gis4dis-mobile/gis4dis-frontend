@@ -12,7 +12,7 @@ var themes = (() => {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': '/rest/api/config/',
+		'url': 'https://zelda.sci.muni.cz/rest/api/config/',
 		'dataType': 'json',
 		'success': data => json = data
 	});
@@ -30,7 +30,7 @@ var config = (() => {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': '/rest/api/config/',
+		'url': 'https://zelda.sci.muni.cz/rest/api/config/',
 		'dataType': 'json',
 		'success': data => json = data
 	});
@@ -65,7 +65,7 @@ observationsLayer.addData(function() {
 	$.ajax({
 		'async': false,
 		'global': false,
-		'url': '/rest/api/observations',
+		'url': 'https://zelda.sci.muni.cz/rest/api/observations',
 		'dataType': 'json',
 		'success': (data) => json = data
 	});
@@ -114,8 +114,6 @@ accuracyFeature.addTo(map);
 positionFeature.addTo(map);
 
 function loadToBottomSheet(template, label) {
-
-
 	if (!label) {
 		$('#bottom-sheet').load("templates/" + template, () => {
 			$('select').material_select();
@@ -262,8 +260,8 @@ function getFormData($form) {
 	let properties = rawProperties.map(property => {
 		let parameter = themes[$form[0].name].parameters.find(parameter => parameter.name == property.name);
 		return {
-			// parameter: parameter.id,
-			parameter: parseInt(Math.random()*10),
+			parameter: parameter.id,
+			// parameter: parseInt(Math.random()*10),
 			value: property.value,
 			phenomenon: phenomenonId
 		}
@@ -274,5 +272,5 @@ function getFormData($form) {
 function sendObservation(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
-	$.post("/rest/api/observations/", JSON.stringify(observationProperties), (data, status) => console.log(status, data));
+	$.post("https://zelda.sci.muni.cz/rest/api/observations/", JSON.stringify(observationProperties), (data, status) => console.log(status, data));
 }
