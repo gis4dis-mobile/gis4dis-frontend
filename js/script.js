@@ -135,8 +135,8 @@ function loadToBottomSheet(template, label) {
 	observationProperties = {
 		// position: lastPosition,
 		geometry: "POINT(" + lastPosition.lng + " " + lastPosition.lat + ")",
-		observation_time: time.toLocaleTimeString(),
-		date: time.toLocaleDateString().replace(/. /g, "-"),
+		observation_time: ("0" + time.getHours()).substr(-2) + ":" + ("0" + time.getMinutes()).substr(-2) + ":" + ("0" + time.getSeconds()).substr(-2),
+		date: time.getFullYear() + "-" + ("0" + time.getMonth()).substr(-2) + "-" + ("0" + time.getDay()).substr(-2),
 		values: []
 	};
 	let theme = template[label];
