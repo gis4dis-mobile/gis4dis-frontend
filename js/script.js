@@ -2,13 +2,13 @@ $(document).ready(function(){
 	$('.modal').modal();
 });
 
-var mobile = screen.width < 800;
-var follow = false;
-var lastPosition = null;
-var observationProperties = {};
+let mobile = screen.width < 800;
+let follow = false;
+let lastPosition = null;
+let observationProperties = {};
 
-var themes = (() => {
-	var json = null;
+let themes = (() => {
+	let json = null;
 	$.ajax({
 		'async': false,
 		'global': false,
@@ -16,8 +16,8 @@ var themes = (() => {
 		'dataType': 'json',
 		'success': data => json = data
 	});
-	var themes = {};
-	var colors = ["red", "yellow darken-1", "green", "blue"];
+	let themes = {};
+	let colors = ["red", "yellow darken-1", "green", "blue"];
 	for (theme in json) {
 		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
 		themes[json[theme].name] = json[theme];
@@ -25,8 +25,8 @@ var themes = (() => {
 	return themes;
 })();
 
-var config = (() => {
-	var json = null;
+let config = (() => {
+	let json = null;
 	$.ajax({
 		'async': false,
 		'global': false,
@@ -37,20 +37,20 @@ var config = (() => {
 	return json;
 })();
 
-var map = L.map('map', {
+let map = L.map('map', {
 	center: [49.2, 16.6],
 	zoom: 13,
 	zoomControl: false
 });
 
-var positionFeature = L.circleMarker([0, 0], {
+let positionFeature = L.circleMarker([0, 0], {
 	color: '#1A8ACB',
 	radius: 8,
 	fillOpacity: 0.8,
 	clickable: false
 });
 	
-var accuracyFeature = L.circle([0, 0], 0, {
+let accuracyFeature = L.circle([0, 0], 0, {
 	color: '#93D9EC',
 	fillOpacity: 0.4,
 	weight: 2,
@@ -58,10 +58,10 @@ var accuracyFeature = L.circle([0, 0], 0, {
 });
 
 L.tileLayer(mobile ? 'http://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-var observationsLayer = L.geoJSON().addTo(map);
+let observationsLayer = L.geoJSON().addTo(map);
 
 observationsLayer.addData(function() {
-	var json = null;
+	let json = null;
 	$.ajax({
 		'async': false,
 		'global': false,
@@ -71,6 +71,16 @@ observationsLayer.addData(function() {
 	});
 	return json;
 }());
+
+function login() {
+	$.post('https://zelda.sci.muni.cz/rest/rest-auth/login/', JSON.stringify($("#login").serializeArray()), (data, status) => localStorage.userToken = data);
+	console.log(localStorage.userToken);
+}
+
+function register() {
+	$.post('https://zelda.sci.muni.cz/rest/rest-auth/registration/', JSON.stringify($("#register").serializeArray()), (data, status) => localStorage.userToken = data);
+	console.log(localStorage.userToken);
+}
 
 function toggleFollow(event) {
 	if (follow) {
@@ -216,7 +226,7 @@ function loadToBottomSheet(template, label) {
 		class: "material-icons right",
 		text: "send"
 	})));
-	var observationTemplate = $("<div/>", {
+	let observationTemplate = $("<div/>", {
 		class: "modal-content"
 	}).append([
 		$("<a/>", {
@@ -254,7 +264,7 @@ function displayTooltips() {
 }
 
 function getFormData($form) {
-	let rawProperties = $form.serializeArray();
+	let rawProperties = $form.serializeArray();	
 	// let phenomenonId = themes[$form[0].name];
 	let phenomenonId = 1;
 	let properties = rawProperties.map(property => {
