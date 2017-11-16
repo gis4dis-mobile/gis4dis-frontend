@@ -1,9 +1,9 @@
 <div class="modal-content">
   <h4>Register</h4>
-  <form action="/rest-auth/registration/" method="POST" enctype="multipart/form-data">
+  <form id="register" action="/rest-auth/registration/" method="POST" enctype="multipart/form-data" onsubmit="register(); return false;">
     <div class="input-field">
-      <input id="username" type="text" class="validate">
-      <label for="username">Username</label>
+      <input id="username" type="text" class="">
+      <label for="username">Username (Optional)</label>
     </div>
     <div class="input-field">
       <input id="email" type="email" class="validate">
