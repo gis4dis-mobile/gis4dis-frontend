@@ -89,7 +89,7 @@ function login() {
 
 function registration() {
 	let formData = {};
-	$("#registration").serializeArray().map(input => formData[input.name] = input.value);
+	$("#registration").serializeArray().map(input => if (input.value) {formData[input.name] = input.value});
 	$.ajax({
 		'async': false,
 		'global': false,
