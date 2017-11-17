@@ -79,7 +79,7 @@ function login() {
 		'async': false,
 		'global': false,
 		'method': 'POST',
-		'url': 'https://zelda.sci.muni.cz/rest/api/login/',
+		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/login/',
 		'contentType': 'application/json; charset=UTF-8',
 		'data': JSON.stringify(formData),
 		'success': (data) => localStorage.userToken = data
@@ -94,7 +94,7 @@ function registration() {
 		'async': false,
 		'global': false,
 		'method': 'POST',
-		'url': 'https://zelda.sci.muni.cz/rest/api/registration/',
+		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/registration/',
 		'contentType': 'application/json; charset=UTF-8',
 		'data': JSON.stringify(formData),
 		'success': (data) => localStorage.userToken = data
