@@ -344,5 +344,18 @@ function getFormData($form) {
 function sendObservation(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
-	$.post("https://zelda.sci.muni.cz/rest/api/observations/", JSON.stringify(observationProperties), (data, status) => console.log(status, data));
+	$.ajax({
+		'async': false,
+		'global': false,
+		'method': 'POST',
+		'url': 'https://zelda.sci.muni.cz/rest/api/observations/',
+		'contentType': 'application/json; charset=UTF-8',
+		'data': JSON.stringify(observationProperties),
+		'success': (data, status) => {
+			console.log(status, data);
+			$("#bottom-sheet").modal("close");
+			Materialize.toast('Observation sent.', 4000);
+		},
+		'error': (error) => console.log(error)
+	});
 }
