@@ -21,7 +21,7 @@
       </ul>
       <ul class="right">
         <li><a href="#hint" onclick="showHint(themes['Dry vegetation (trees)'].help)" class="modal-trigger"><i class="material-icons">help</i></a></li>
-        <li><a href="#bottom-sheet" onclick="loadToBottomSheet('login.html')" class="modal-trigger"><i class="material-icons">account_circle</i></a></li>
+        <li><a href="#bottom-sheet" onclick="userInfo()" class="modal-trigger"><i class="material-icons">account_circle</i></a></li>
       </ul>
     </div>
   </nav>
@@ -33,6 +33,12 @@
   <a id="geolocationSwitch" class="gui btn-floating waves-effect waves-light blue" onclick="toggleFollow()"><i class="material-icons">location_searching</i></a>
   <div id="bottom-sheet" class="modal bottom-sheet"></div>
   <div id="hint" class="modal modal-fixed-footer">
+    <div class="modal-content"></div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Okay</a>
+    </div>
+  </div>
+  <div id="error" class="modal">
     <div class="modal-content"></div>
     <div class="modal-footer">
       <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Okay</a>

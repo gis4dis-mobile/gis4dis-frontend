@@ -72,6 +72,17 @@ observationsLayer.addData(function() {
 	return json;
 }());
 
+function displayError(err) {
+	console.log(err);
+	$('#error .modal-content ul').remove();
+	$('#error .modal-content').html("<h4 style='color:red'>Error</h4>");
+	$('#error .modal-content').append("<ul></ul>")
+	for (a in err) {
+		for (b in err[a]) $('#error .modal-content ul').append("<li>" + err[a][b] + "</li>");;
+	}
+	$('#error').modal('open');
+}
+
 function userInfo() {
 	if (!localStorage.userToken) {
 		loadToBottomSheet('login.html');
@@ -95,7 +106,8 @@ function login() {
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Login successful.', 4000);
-		}
+		},
+		'error': (data) => displayError(data.responseJSON)
 	});
 	console.log(localStorage.userToken);
 }
@@ -122,7 +134,8 @@ function registration() {
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Registration successful.', 4000);
-		}
+		},
+		'error': (data) => displayError(data.responseJSON)
 	});
 	console.log(localStorage.userToken);
 }
@@ -182,7 +195,7 @@ function loadToBottomSheet(template, label, callback) {
 		// position: lastPosition,
 		geometry: "POINT(" + lastPosition.lng + " " + lastPosition.lat + ")",
 		observation_time: ("0" + time.getHours()).substr(-2) + ":" + ("0" + time.getMinutes()).substr(-2) + ":" + ("0" + time.getSeconds()).substr(-2),
-		date: time.getFullYear() + "-" + ("0" + time.getMonth()).substr(-2) + "-" + ("0" + time.getDay()).substr(-2),
+		date: time.getFullYear() + "-" + ("0" + (time.getMonth() + 1)).substr(-2) + "-" + ("0" + time.getDate()).substr(-2),
 		values: []
 	};
 	let theme = template[label];
@@ -281,7 +294,7 @@ function loadToBottomSheet(template, label, callback) {
 			class: "waves-effect waves-light modal-trigger",
 			html: "<i class='material-icons'>help</i></a>"
 		}),
-		"<h4>Dry vegetation (trees)</h4>",
+		"<h4>" + theme.name + "</h4>",
 		"<br>",
 		observationForm
 	]);
@@ -291,7 +304,7 @@ function loadToBottomSheet(template, label, callback) {
 		// fillLatLng(lastPosition);
 	})();
 
-	callback();
+	if (callback) callback();
 	// return;
 }
 
