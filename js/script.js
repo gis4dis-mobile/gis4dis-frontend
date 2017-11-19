@@ -60,7 +60,7 @@ let accuracyFeature = L.circle([0, 0], 0, {
 L.tileLayer(mobile ? 'http://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 let observationsLayer = L.geoJSON().addTo(map);
 
-observationsLayer.addData(() => {
+observationsLayer.addData(function() {
 	let json = null;
 	$.ajax({
 		'async': false,

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "i18next": "^10.0.7",
     "jquery": "^3.2.1",
     "leaflet": "^1.2.0",
     "materialize-css": "^0.100.1",
