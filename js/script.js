@@ -72,6 +72,14 @@ observationsLayer.addData(function() {
 	return json;
 }());
 
+function userInfo() {
+	if (!localStorage.userToken) {
+		loadToBottomSheet('login.html');
+		return;
+	}
+	loadToBottomSheet('account.html', null, () => $("#user-email").html(localStorage.email));
+}
+
 function login() {
 	let formData = {};
 	$("#login").serializeArray().map(input => formData[input.name] = input.value);
@@ -82,9 +90,21 @@ function login() {
 		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/login/',
 		'contentType': 'application/json; charset=UTF-8',
 		'data': JSON.stringify(formData),
-		'success': (data) => localStorage.userToken = data
+		'success': (data) => {
+			localStorage.email = formData.email;
+			localStorage.userToken = data.key;
+			$("#bottom-sheet").modal("close");
+			Materialize.toast('Login successful.', 4000);
+		}
 	});
 	console.log(localStorage.userToken);
+}
+
+function logout() {
+	delete localStorage.email;
+	delete localStorage.userToken;
+	$("#bottom-sheet").modal("close");
+	Materialize.toast('Logout successful.', 4000);
 }
 
 function registration() {
@@ -97,7 +117,12 @@ function registration() {
 		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/registration/',
 		'contentType': 'application/json; charset=UTF-8',
 		'data': JSON.stringify(formData),
-		'success': (data) => localStorage.userToken = data
+		'success': (data) => {
+			localStorage.email = formData.email;
+			localStorage.userToken = data.key;
+			$("#bottom-sheet").modal("close");
+			Materialize.toast('Registration successful.', 4000);
+		}
 	});
 	console.log(localStorage.userToken);
 }
@@ -143,10 +168,11 @@ map.locate({
 accuracyFeature.addTo(map);
 positionFeature.addTo(map);
 
-function loadToBottomSheet(template, label) {
+function loadToBottomSheet(template, label, callback) {
 	if (!label) {
 		$('#bottom-sheet').load("templates/" + template, () => {
 			$('select').material_select();
+			if (callback) callback();
 		});
 		return;
 	}
@@ -264,6 +290,9 @@ function loadToBottomSheet(template, label) {
 		$('select').material_select();
 		// fillLatLng(lastPosition);
 	})();
+
+	callback();
+	// return;
 }
 
 function showHint(hint) {
