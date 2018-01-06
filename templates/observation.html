@@ -37,6 +37,10 @@
       <input id="trunk-diameter" name="trunk-diameter" type="number" step="0.01" class="validate">
       <label for="trunk-diameter">Trunk diameter</label>
     </div>
+    <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none">
+    <button id="photo" name="triggerPhoto" class="waves-effect waves-light" onclick="getImage('#photoInput', event);">
+      <i class="material-icons">add_a_photo</i>
+    </button>
     <button class="btn waves-effect waves-light" type="submit" name="submit">Submit
       <i class="material-icons right">send</i>
     </button>

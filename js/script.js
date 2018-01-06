@@ -19,7 +19,8 @@ let themes = (() => {
 	let themes = {};
 	let colors = ["red", "yellow darken-1", "green", "blue"];
 	for (theme in json) {
-		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
+		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(&quot;observation.html&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
+		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
 		themes[json[theme].name] = json[theme];
 	};
 	return themes;
@@ -339,6 +340,11 @@ function getFormData($form) {
 		}
 	});
 	return properties;
+}
+
+function getImage(id, e) {
+	e.preventDefault();
+	$(id).click();
 }
 
 function sendObservation(e) {
