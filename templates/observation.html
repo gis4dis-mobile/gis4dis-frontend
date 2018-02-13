@@ -15,11 +15,9 @@
     </div>
     <div class="input-field">
       <input id="latitude" name="latitude" type="number" step="any" style="display: none;">
-      <label for="latitude">Latitude</label>
     </div>
     <div class="input-field">
       <input id="longitude" name="longitude" type="number" step="any" style="display: none;">
-      <label for="longitude">Longitude</label>
     </div>
     <div class="input-field">
       <select name="tree-type">
@@ -38,7 +36,7 @@
       <label for="trunk-diameter">Trunk diameter</label>
     </div>
     <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none">
-    <button id="photo" name="triggerPhoto" class="waves-effect waves-light" onclick="getImage('#photoInput', event);">
+    <button id="photo" name="triggerPhoto" class="btn waves-effect waves-light" onclick="getImage('#photoInput', event);">
       <i class="material-icons">add_a_photo</i>
     </button>
     <button class="btn waves-effect waves-light" type="submit" name="submit">Submit

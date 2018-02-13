@@ -29,11 +29,14 @@ let themes = (() => {
 let config = (() => {
 	let json = null;
 	$.ajax({
-		'async': false,
-		'global': false,
-		'url': 'https://zelda.sci.muni.cz/rest/api/config/',
-		'dataType': 'json',
-		'success': data => json = data
+		async: false,
+		global: false,
+		url: 'https://zelda.sci.muni.cz/rest/api/config/',
+		headers: {
+			'Authorization': "Token " + localStorage.userToken,
+		},
+		dataType: 'json',
+		success: data => json = data
 	});
 	return json;
 })();
@@ -64,11 +67,14 @@ let observationsLayer = L.geoJSON().addTo(map);
 observationsLayer.addData(function() {
 	let json = null;
 	$.ajax({
-		'async': false,
-		'global': false,
-		'url': 'https://zelda.sci.muni.cz/rest/api/observations/',
-		'dataType': 'json',
-		'success': (data) => json = data
+		async: false,
+		global: false,
+		headers: {
+			'Authorization': "Token " + localStorage.userToken,
+		},
+		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
+		dataType: 'json',
+		success: (data) => json = data
 	});
 	return json;
 }());
@@ -96,19 +102,19 @@ function login() {
 	let formData = {};
 	$("#login").serializeArray().map(input => formData[input.name] = input.value);
 	$.ajax({
-		'async': false,
-		'global': false,
-		'method': 'POST',
-		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/login/',
-		'contentType': 'application/json; charset=UTF-8',
-		'data': JSON.stringify(formData),
-		'success': (data) => {
+		async: false,
+		global: false,
+		method: 'POST',
+		url: 'https://zelda.sci.muni.cz/rest/rest-auth/login/',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(formData),
+		success: (data) => {
 			localStorage.email = formData.email;
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Login successful.', 4000);
 		},
-		'error': (data) => displayError(data.responseJSON)
+		error: (data) => displayError(data.responseJSON)
 	});
 	console.log(localStorage.userToken);
 }
@@ -124,19 +130,19 @@ function registration() {
 	let formData = {};
 	$("#registration").serializeArray().map(input => {if (input.value) {formData[input.name] = input.value}});
 	$.ajax({
-		'async': false,
-		'global': false,
-		'method': 'POST',
-		'url': 'https://zelda.sci.muni.cz/rest/rest-auth/registration/',
-		'contentType': 'application/json; charset=UTF-8',
-		'data': JSON.stringify(formData),
-		'success': (data) => {
+		async: false,
+		global: false,
+		method: 'POST',
+		url: 'https://zelda.sci.muni.cz/rest/rest-auth/registration/',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(formData),
+		success: (data) => {
 			localStorage.email = formData.email;
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Registration successful.', 4000);
 		},
-		'error': (data) => displayError(data.responseJSON)
+		error: (data) => displayError(data.responseJSON)
 	});
 	console.log(localStorage.userToken);
 }
@@ -351,18 +357,21 @@ function sendObservation(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
 	$.ajax({
-		'async': false,
-		'global': false,
-		'method': 'POST',
-		'url': 'https://zelda.sci.muni.cz/rest/api/observations/',
-		'contentType': 'application/json; charset=UTF-8',
-		'data': JSON.stringify(observationProperties),
-		'success': (data, status) => {
+		async: false,
+		global: false,
+		method: 'POST',
+		headers: {
+			'Authorization': "Token " + localStorage.userToken,
+		},
+		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(observationProperties),
+		success: (data, status) => {
 			console.log(status, data);
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Observation sent.', 4000);
 			observationsLayer.addData(data);
 		},
-		'error': (error) => console.log(error)
+		error: (error) => console.log(error)
 	});
 }
