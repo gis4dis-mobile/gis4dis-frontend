@@ -86,7 +86,7 @@ observationsLayer.addData(function() {
 		global: false,
 		headers: {
 			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
-		},  
+		},
 		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
 		dataType: 'json',
 		success: (data) => json = data
