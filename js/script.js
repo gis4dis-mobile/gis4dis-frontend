@@ -4,6 +4,8 @@ $(document).ready(function(){
 
 if (!localStorage.observations) {
 	localStorage.observations = JSON.stringify([]);
+} else if (!Array.isArray(JSON.parse(localStorage.observations))) {
+	localStorage.observations = JSON.stringify([]);
 } else {
 	if (JSON.parse(localStorage.observations).length > 0) {
 		retrySending();
