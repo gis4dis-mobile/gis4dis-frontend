@@ -2,7 +2,15 @@ $(document).ready(function(){
 	$('.modal').modal();
 });
 
-let mobile = screen.width < 800;
+if (!localStorage.observations) {
+	localStorage.observations = JSON.stringify([]);
+} else {
+	if (JSON.parse(localStorage.observations).length > 0) {
+		retrySending();
+	}
+}
+
+let mobile = devicePixelRatio > 1;
 let follow = false;
 let lastPosition = null;
 let observationProperties = {};
@@ -10,17 +18,20 @@ let observationProperties = {};
 let themes = (() => {
 	let json = null;
 	$.ajax({
-		'async': false,
-		'global': false,
-		'url': 'https://zelda.sci.muni.cz/rest/api/config/',
-		'dataType': 'json',
-		'success': data => json = data
+		async: false,
+		global: false,
+		headers: {
+			'Authorization': "Token " + localStorage.userToken,
+		},
+		url: 'https://zelda.sci.muni.cz/rest/api/config/',
+		dataType: 'json',
+		success: data => json = data
 	});
 	let themes = {};
 	let colors = ["red", "yellow darken-1", "green", "blue"];
 	for (theme in json) {
-		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(&quot;observation.html&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
-		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
+		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(&quot;observation.html&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
+		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
 		themes[json[theme].name] = json[theme];
 	};
 	return themes;
@@ -31,10 +42,10 @@ let config = (() => {
 	$.ajax({
 		async: false,
 		global: false,
-		url: 'https://zelda.sci.muni.cz/rest/api/config/',
 		headers: {
 			'Authorization': "Token " + localStorage.userToken,
 		},
+		url: 'https://zelda.sci.muni.cz/rest/api/config/',
 		dataType: 'json',
 		success: data => json = data
 	});
@@ -71,7 +82,7 @@ observationsLayer.addData(function() {
 		global: false,
 		headers: {
 			'Authorization': "Token " + localStorage.userToken,
-		},
+		},  
 		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
 		dataType: 'json',
 		success: (data) => json = data
@@ -211,7 +222,7 @@ function loadToBottomSheet(template, label, callback) {
 		name: theme.name,
 		action: "",
 		method: "GET",
-		onsubmit: "sendObservation(event); return false;"
+		onsubmit: "trySending(event); return false;"
 		// action: "api/observations/",
 		// method: "POST",
 		// enctype: "multipart/form-data"
@@ -283,7 +294,24 @@ function loadToBottomSheet(template, label, callback) {
 		type: "number",
 		step: "any",
 		style: "display: none;"
-	})), */$("<button/>", {
+	})), */
+	$("<input/>", {
+		type: "file",
+		name: "photo",
+		id: "photoInput",
+		accept: "image/*",
+		style: "display:none"
+	}),
+	$("<button/>", {
+		id: "photo",
+		name: "triggerPhoto",
+		class: "btn waves-effect waves-light",
+		onclick: "getImage('#photoInput', event);"
+	}).append($("<i/>", {
+		class: "material-icons",
+		text: "add_a_photo"
+	}))," ",
+	$("<button/>", {
 		class: "btn waves-effect waves-light",
 		type: "submit",
 		name: "submit",
@@ -353,25 +381,68 @@ function getImage(id, e) {
 	$(id).click();
 }
 
-function sendObservation(e) {
+function sendObservation(data, successCallback, errorCallback) {
+  let xhr = new XMLHttpRequest();
+
+  xhr.onreadystatechange = function(e) {
+    if (xhr.readyState != 4) {
+      return;
+    }
+
+    if (xhr.status == 201) {
+      successCallback(JSON.parse(xhr.response), xhr.status);
+    } else {
+    	errorCallback(xhr.status);
+    }
+  };
+
+  xhr.open("POST", 'https://zelda.sci.muni.cz/rest/api/observations/', true);
+  xhr.setRequestHeader("Authorization", "Token " + localStorage.userToken);
+  xhr.setRequestHeader("Content-type", 'application/json; charset=UTF-8');
+  xhr.send(data);
+}
+
+function trySending(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
-	$.ajax({
-		async: false,
-		global: false,
-		method: 'POST',
-		headers: {
-			'Authorization': "Token " + localStorage.userToken,
-		},
-		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
-		contentType: 'application/json; charset=UTF-8',
-		data: JSON.stringify(observationProperties),
-		success: (data, status) => {
-			console.log(status, data);
-			$("#bottom-sheet").modal("close");
-			Materialize.toast('Observation sent.', 4000);
-			observationsLayer.addData(data);
-		},
-		error: (error) => console.log(error)
+	sendObservation(JSON.stringify(observationProperties), (data, status) => {
+		console.log(status);
+		$("#bottom-sheet").modal("close");
+		Materialize.toast('Observation sent.', 4000);
+		observationsLayer.addData(data);
+	}, (error) => {
+		console.log(error);
+		$("#bottom-sheet").modal("close");
+		Materialize.toast('Sending data failed. Retrying when online.', 4000);
+		localStorage.observations = JSON.stringify(JSON.parse(localStorage.observations).push(observationProperties));
+		retrySending();
 	});
+}
+
+function retrySending() {
+	let checkConnection = setInterval(() => {
+		let observations = JSON.parse(localStorage.observations);
+		console.log('Trying to send observations.', observations);
+		let sentCount = 0;
+		let failed = false;
+		while (observations.length > 0) {
+			observations = JSON.parse(localStorage.observations);
+			let observation = observations[0];
+			sendObservation(JSON.stringify(observation), (data,status) => {
+				console.log(status);
+				observationsLayer.addData(data);
+				observations.splice(0,1);
+				sentCount++;
+				localStorage.observations = JSON.stringify(observations);
+			}, (error) => {
+				Materialize.toast(`Managed to send ${sentCount} observations. ${observations.length} remaining.`, 4000);
+				failed = true;
+			});
+			if (failed) break;
+		}
+		if (observations.length == 0) {
+			clearInterval(checkConnection);
+			Materialize.toast(`All ${sentCount} remaining observations sent.`, 4000);
+		}
+	}, 30000);
 }
