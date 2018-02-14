@@ -414,7 +414,9 @@ function trySending(e) {
 		console.log(error);
 		$("#bottom-sheet").modal("close");
 		Materialize.toast('Sending data failed. Retrying when online.', 4000);
-		localStorage.observations = JSON.stringify(JSON.parse(localStorage.observations).push(observationProperties));
+		let observations = JSON.parse(localStorage.observations);
+		observations.push(observationProperties)
+		localStorage.observations = JSON.stringify(observations);
 		retrySending();
 	});
 }
