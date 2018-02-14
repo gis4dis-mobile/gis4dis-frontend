@@ -12,6 +12,7 @@ if (!localStorage.observations) {
 	}
 }
 
+let checkConnection;
 let mobile = devicePixelRatio > 1;
 let follow = false;
 let lastPosition = null;
@@ -49,7 +50,8 @@ let config = (() => {
 		},
 		url: 'https://zelda.sci.muni.cz/rest/api/config/',
 		dataType: 'json',
-		success: data => json = data
+		success: data => json = data,
+		error: data => displayError(data.responseJSON)
 	});
 	return json;
 })();
@@ -98,7 +100,7 @@ function displayError(err) {
 	$('#error .modal-content').html("<h4 style='color:red'>Error</h4>");
 	$('#error .modal-content').append("<ul></ul>")
 	for (a in err) {
-		for (b in err[a]) $('#error .modal-content ul').append("<li>" + err[a][b] + "</li>");;
+		for (b in err[a]) $('#error .modal-content ul').append("<li>" + err[a][b] + "</li>");
 	}
 	$('#error').modal('open');
 }
@@ -386,12 +388,19 @@ function getImage(id, e) {
 function sendObservation(data, successCallback, errorCallback) {
   let xhr = new XMLHttpRequest();
 
+  let noResponseTimer = setTimeout(() => {
+  	xhr.abort();
+  	errorCallback(xhr.status);
+  	return;
+  }, 30000);
+
   xhr.onreadystatechange = function(e) {
     if (xhr.readyState != 4) {
       return;
     }
 
     if (xhr.status == 201) {
+    	clearTimeout(noResponseTimer);
       successCallback(JSON.parse(xhr.response), xhr.status);
     } else {
     	errorCallback(xhr.status);
@@ -424,7 +433,9 @@ function trySending(e) {
 }
 
 function retrySending() {
-	let checkConnection = setInterval(() => {
+	if (checkConnection) return;
+
+	checkConnection = setInterval(() => {
 		let observations = JSON.parse(localStorage.observations);
 		console.log('Trying to send observations.', observations);
 		let sentCount = 0;
@@ -446,6 +457,7 @@ function retrySending() {
 		}
 		if (observations.length == 0) {
 			clearInterval(checkConnection);
+			checkConnection = undefined;
 			Materialize.toast(`All ${sentCount} remaining observations sent.`, 4000);
 		}
 	}, 30000);
