@@ -465,7 +465,7 @@ function trySending(e) {
 }
 
 function retrySending() {
-	if (checkConnection) return;
+	if (typeof checkConnection !== "undefined") return;
 
 	checkConnection = setInterval(() => {
 		let observations = JSON.parse(localStorage.observations);
