@@ -299,6 +299,12 @@ function loadToBottomSheet(template, label, callback) {
 		step: "any",
 		style: "display: none;"
 	})), */
+	$("<div/>", {
+		id: "photoCarousel",
+		class: "carousel carousel-slider center",
+		// style: "display:none",
+		"data-indicators": "true"
+	}),
 	$("<input/>", {
 		type: "file",
 		name: "photo",
@@ -343,6 +349,9 @@ function loadToBottomSheet(template, label, callback) {
 		// fillLatLng(lastPosition);
 	})();
 
+	// $(".carousel").carousel();
+	$("#photoInput").change(displayThumbnail);
+
 	if (callback) callback();
 	// return;
 }
@@ -362,6 +371,29 @@ function displayTooltips() {
 		$(".tooltipped").trigger("mouseleave.tooltip");
 		clearTimeout(tooltipsDelay);
 	}
+}
+
+function displayThumbnail() {
+	var me = this;
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		$("#photoCarousel").append($("<a/>", {
+			class: "carousel-item",
+			href: "#" + me.files[0].name,
+		}).append($("<img/>", {
+			class: "thumbnail",
+			src: e.target.result,
+			alt: "Photo thumbail",
+		})));	
+		// $("#photoCarousel").css("display", "unset");
+		$(".carousel").carousel('destroy');
+		$(".carousel").carousel({
+			fullWidth: true,
+			duration: 100
+		});
+	};
+
+	reader.readAsDataURL(me.files[0]);
 }
 
 function getFormData($form) {
