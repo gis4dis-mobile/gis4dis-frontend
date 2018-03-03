@@ -24,7 +24,7 @@ let themes = (() => {
 		async: false,
 		global: false,
 		headers: {
-			'Authorization': "Token " + localStorage.userToken,
+			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
 		},
 		url: 'https://zelda.sci.muni.cz/rest/api/config/',
 		dataType: 'json',
@@ -46,7 +46,7 @@ let config = (() => {
 		async: false,
 		global: false,
 		headers: {
-			'Authorization': "Token " + localStorage.userToken,
+			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
 		},
 		url: 'https://zelda.sci.muni.cz/rest/api/config/',
 		dataType: 'json',
@@ -85,7 +85,7 @@ observationsLayer.addData(function() {
 		async: false,
 		global: false,
 		headers: {
-			'Authorization': "Token " + localStorage.userToken,
+			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
 		},  
 		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
 		dataType: 'json',
