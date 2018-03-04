@@ -50,3 +50,7 @@ body {
 #photo.btn {
 	padding: 0 1rem;
 }
+
+#inline {
+	height: 30px;
+}
