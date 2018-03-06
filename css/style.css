@@ -56,11 +56,16 @@ body {
 }
 
 /* Materialize overrides styling in help modal */
-ul.browser-default {
-	padding-left: 30px;
+.modal-content p {
 	margin-top: 10px;
-	margin-bottom: 15px;
 }
-ul.browser-default li {
-	list-style-type: initial;
+
+.modal-content ul > li {
+	list-style: initial;
+	margin: 5px 0 0 20px;
+}
+
+.modal-content ul > li > ul > li {
+	list-style-type: circle;
+	margin: 2px 0 3px 15px;
 }
