@@ -54,3 +54,13 @@ body {
 #inline {
 	height: 30px;
 }
+
+/* Materialize overrides styling in help modal */
+ul.browser-default {
+	padding-left: 30px;
+	margin-top: 10px;
+	margin-bottom: 15px;
+}
+ul.browser-default li {
+	list-style-type: initial;
+}
