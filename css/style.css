@@ -69,3 +69,7 @@ body {
 	list-style-type: circle;
 	margin: 2px 0 3px 15px;
 }
+
+#hint {
+	background-color: #ffffff;
+}
