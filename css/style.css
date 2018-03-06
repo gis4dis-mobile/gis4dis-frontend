@@ -68,7 +68,9 @@ body {
 .modal-content ul > li > ul > li {
 	list-style-type: circle;
 	margin: 2px 0 3px 15px;
-}/* Materialize overrides styling in help modal */
+}
+
+/* Materialize overrides styling in help modal */
 .modal-content p {
 	margin-top: 10px;
 }
