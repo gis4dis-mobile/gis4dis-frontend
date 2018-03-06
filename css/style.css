@@ -60,12 +60,12 @@ body {
 	margin-top: 10px;
 }
 
-.modal-content ul > li {
+.help ul > li {
 	list-style: initial;
 	margin: 5px 0 0 20px;
 }
 
-.modal-content ul > li > ul > li {
+.help ul > li > ul > li {
 	list-style-type: circle;
 	margin: 2px 0 3px 15px;
 }
