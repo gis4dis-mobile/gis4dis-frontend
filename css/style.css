@@ -56,6 +56,15 @@ body {
 }
 
 /* Materialize overrides styling in help modal */
+ul.browser-default {
+	padding-left: 30px;
+	margin-top: 10px;
+	margin-bottom: 15px;
+}
+ul.browser-default li {
+	list-style-type: initial;
+}
+/* Materialize overrides styling in help modal */
 .modal-content p {
 	margin-top: 10px;
 }
