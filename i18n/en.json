@@ -1,0 +1,15 @@
+{
+  "@metadata": {
+    "authors": [
+      "Petr Silhak"
+    ],
+    "last-updated": "2018-03-07",
+    "locale": "en"
+  },
+  "gis4dis-title": "Drght",
+  "gis4dis-login": "Login",
+  "gis4dis-email": "Email",
+  "gis4dis-password": "Password",
+  "gis4dis-register": "Register",
+  "gis4dis-forgotpassword": "Forgot password?"
+}

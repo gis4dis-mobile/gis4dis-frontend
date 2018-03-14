@@ -1,0 +1,75 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body, html {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	display: grid;
+	grid-template-rows: 56px auto;
+}
+
+#map {
+	height: 100%;
+}
+
+.gui {
+	z-index: 900;
+}
+
+/*#fab {
+	position: absolute;
+	bottom: 1.5em;
+	right: 1.5em;
+}*/
+
+#geolocationSwitch {
+	position: absolute;
+	bottom: 1.5em;
+	left: 1.5em;
+}
+
+.modal.bottom-sheet {
+	max-height: 70%;
+}
+
+#modalHelp {
+  position: absolute;
+  top: 2.15em;
+  right: 1.5em;
+}
+
+.material-tooltip {
+	border-radius: 5px;
+}
+
+#photo.btn {
+	padding: 0 1rem;
+}
+
+#inline {
+	height: 30px;
+}
+
+/* Materialize overrides styling in help modal */
+.modal-content p {
+	margin-top: 10px;
+}
+
+.help ul > li {
+	list-style: initial;
+	margin: 5px 0 0 20px;
+}
+
+.help ul > li > ul > li {
+	list-style-type: circle;
+	margin: 2px 0 3px 15px;
+}
+
+#hint {
+	background-color: #ffffff;
+}

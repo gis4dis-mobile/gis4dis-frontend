@@ -1,0 +1,65 @@
+[
+    {
+    	"metadata": {
+    		"created-by": "Petr Šilhák",
+    		"date": "2018-03-06",
+    		"language": "en"
+    	},
+        "title": "Dry vegetation (trees)",
+        "body": [
+        	{
+        		"type": "p",
+        		"content": "Although trees are equipped with water scarcity mechanisms, tree responses usually depend on many factors including, for example, soil type, tree density, age, or tree health. In the case of drought, trees shut off stomata, limiting the transpiration and supporting water retention. if drought appears on a longer horizon, the tree limits photosynthesis, which leads to a slowdown in growth."
+        	},
+        	{
+        		"type": "h4",
+        		"content": "Key signs"
+        	},
+        	{
+        		"type": "h5",
+        		"content": "Withering"	
+        	},	
+        	{
+        		"type": "p",
+        		"content": "Associated with a decrease of pressure in leaflet mesh. Withering of leaves appears as sign of shorter dryness in the day and overnight can disappear. In the case of prolonged drought, leaf wrinkling is permanent."
+        	},
+        	{
+        		"type": "h5",
+        		"content": "Change leaf color"	
+        	},
+        	{
+        		"type": "p",
+        		"content": "Resulting in brown or yellow leaves or the drying ends whole leaves or their parts. When it comes to coniferous trees, droughts appear on the two year needles and results in browning or redening."
+        	},
+        	{
+        		"type": "img",
+        		"url": "http://zelda.sci.muni.cz/rest/api/static/leaf_color.jpg"
+        	},
+        	{
+        		"type": "h5",
+        		"content": "Defoliation"	
+        	},
+        	{
+        		"type": "p",
+        		"content": " Partial or complete loss of leaves. The first is reflected on old leaves and places heavily exposed to sunlight. Long-term droughts occurring in the order of several years can be observed for the deflation of the crown, especially in the upper parts."
+        	},
+        	{
+        		"type": "img",
+        		"url": "http://zelda.sci.muni.cz/rest/api/static/dieback.jpg"
+        	},
+        	{
+        		"type": "h5",
+        		"content": "Bark bettle attacks and other pest attacks"	
+        	},
+        	{
+        		"type": "p",
+        		"content": "The health status of drought-affected trees is poor. This makes them more susceptible to pest infestation. Trees are also unable to defend effectively. Not applicable to areas with bark beetle"
+        	},
+        	{
+        		"type": "ul",
+        		"title": "List of observed parameters:",
+        		"content": ""
+        	},
+        ]
+    }
+]
