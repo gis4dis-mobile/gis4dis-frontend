@@ -77,7 +77,7 @@ let accuracyFeature = L.circle([0, 0], 0, {
 	clickable: false
 });
 
-L.tileLayer(mobile ? 'http://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.tileLayer(mobile ? 'https://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 let observationsLayer = L.geoJSON().addTo(map);
 
 observationsLayer.addData(function() {
