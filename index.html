@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html manifest="cache.manifest">
 <head>
-  <!--Import Google Icon Font-->
+  <link rel="manifest" href="manifest.json">     
+  <meta name="msapplication-TileColor" content="#3f51b5">
+  <!-- <meta name="msapplication-TileColor" content="#039be5"> -->
+  <meta name="msapplication-TileImage" content="/img/ms-icon-144x144.png">
+  <meta name="theme-color" content="#3f51b5"> 
+  <!-- <meta name="theme-color" content="#039be5">  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!--Import materialize.css-->
   <link type="text/css" rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css"  media="screen,projection"/>
 
-  <!--Let browser know website is optimized for mobile-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="google-signin-client_id" content="300501573251-5ov55qlssouh0pdiv9p5ajocgv1l4eg0.apps.googleusercontent.com">
 
@@ -17,7 +20,7 @@
 </head>
 <body>
   <nav>
-    <div class="nav-wrapper">
+    <div class="nav-wrapper indigo">
       <ul class="left">
         <li><a href="#" class="brand-logo left"><i class="material-icons">opacity</i>Drought</a></li>
       </ul>
@@ -29,10 +32,10 @@
   </nav>
 	<div id="map"></div>
   <div id="fab" class="gui fixed-action-btn click-to-toggle">
-    <a href="#bottom-sheet" class="btn-floating btn-large waves-effect waves-light blue" onclick="displayTooltips()"><i class="material-icons">add</i></a>
+    <a href="#bottom-sheet" class="btn-floating btn-large waves-effect waves-light light-blue accent-3" onclick="displayTooltips()"><i class="material-icons">add</i></a>
     <ul></ul>
   </div>
-  <a id="geolocationSwitch" class="gui btn-floating waves-effect waves-light blue" onclick="toggleFollow()"><i class="material-icons">location_searching</i></a>
+  <a id="geolocationSwitch" class="gui btn-floating waves-effect waves-light light-blue accent-3" onclick="toggleFollow()"><i class="material-icons">location_searching</i></a>
   <div id="bottom-sheet" class="modal bottom-sheet"></div>
   <div id="hint" class="modal modal-fixed-footer">
     <div class="help modal-content"></div>
@@ -46,6 +49,17 @@
       <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Okay</a>
     </div>
   </div>
+  <script type="text/javascript">
+  if ('serviceWorker' in navigator) {
+    console.log("Will the service worker register?");
+    navigator.serviceWorker.register('service-worker.js')
+      .then(function(reg){
+        console.log("Yes, it did.");
+      }).catch(function(err) {
+        console.log("No it didn't. This happened:", err)
+    });
+  }
+  </script>
 </body>
   <!--Import jQuery before materialize.js-->
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>

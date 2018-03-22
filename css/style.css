@@ -47,6 +47,10 @@ body {
 	border-radius: 5px;
 }
 
+.carousel {
+	margin-bottom: 1rem;
+}
+
 #photo.btn {
 	padding: 0 1rem;
 }
