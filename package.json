@@ -6,6 +6,7 @@
   "dependencies": {
     "i18next": "^10.2.2",
     "jquery": "^3.2.1",
+    "jquery.i18n": "github:wikimedia/jquery.i18n",
     "leaflet": "^1.2.0",
     "materialize-css": "^0.100.1",
     "requirejs": "^2.3.5"
