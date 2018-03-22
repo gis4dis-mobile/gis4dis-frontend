@@ -17,6 +17,7 @@ let mobile = devicePixelRatio > 1;
 let follow = false;
 let lastPosition = null;
 let observationProperties = {};
+let observationPhotos = [];
 
 let themes = (() => {
 	let json = null;
@@ -212,14 +213,16 @@ function loadToBottomSheet(template, label, callback) {
 		return;
 	}
 
+	position = lastPosition ? lastPosition : map.getCenter()
+
 	let time = new Date();
 	observationProperties = {
-		// position: lastPosition,
-		geometry: "POINT(" + lastPosition.lng + " " + lastPosition.lat + ")",
+		geometry: "POINT(" + position.lng + " " + position.lat + ")",
 		observation_time: ("0" + time.getHours()).substr(-2) + ":" + ("0" + time.getMinutes()).substr(-2) + ":" + ("0" + time.getSeconds()).substr(-2),
 		date: time.getFullYear() + "-" + ("0" + (time.getMonth() + 1)).substr(-2) + "-" + ("0" + time.getDate()).substr(-2),
 		values: []
 	};
+	observationPhotos = [];
 	let theme = template[label];
 	let observationForm = $("<form/>", {
 		id: "observation",
@@ -299,12 +302,6 @@ function loadToBottomSheet(template, label, callback) {
 		step: "any",
 		style: "display: none;"
 	})), */
-	$("<div/>", {
-		id: "photoCarousel",
-		class: "carousel carousel-slider center",
-		// style: "display:none",
-		"data-indicators": "true"
-	}),
 	$("<input/>", {
 		type: "file",
 		name: "photo",
@@ -375,8 +372,19 @@ function displayTooltips() {
 
 function displayThumbnail() {
 	var me = this;
+
+	if (observationPhotos.length === 0) {
+		$("<div/>", {
+			id: "photoCarousel",
+			class: "carousel carousel-slider center",
+			"data-indicators": "true"
+		}).insertBefore("form#observation input#photoInput");
+	}
+
 	var reader = new FileReader();
 	reader.onload = function(e) {
+		observationPhotos.push(e.target.result);
+
 		$("#photoCarousel").append($("<a/>", {
 			class: "carousel-item",
 			href: "#" + me.files[0].name,
@@ -417,7 +425,7 @@ function getImage(id, e) {
 	$(id).click();
 }
 
-function sendObservation(data, successCallback, errorCallback) {
+function sendObservation(data, photos, successCallback, errorCallback) {
   let xhr = new XMLHttpRequest();
 
   let noResponseTimer = setTimeout(() => {
@@ -433,6 +441,18 @@ function sendObservation(data, successCallback, errorCallback) {
 
     if (xhr.status == 201) {
     	clearTimeout(noResponseTimer);
+    	sendPhotos(photos, (data, status) => {
+				console.log(status);
+				Materialize.toast('Photo sent.', 4000);
+				// observationsLayer.addData(data);
+			}, (error) => {
+				console.log(error);
+				Materialize.toast('Sending photo failed.', 4000);
+				// let observations = JSON.parse(localStorage.observations);
+				// observations.push(observationProperties)
+				// localStorage.observations = JSON.stringify(observations);
+				// retrySending();
+			});
       successCallback(JSON.parse(xhr.response), xhr.status);
     } else {
     	errorCallback(xhr.status);
@@ -445,10 +465,45 @@ function sendObservation(data, successCallback, errorCallback) {
   xhr.send(data);
 }
 
+function sendPhotos(photos, successCallback, errorCallback) {
+  let xhr = new XMLHttpRequest();
+
+  let noResponseTimer = setTimeout(() => {
+  	xhr.abort();
+  	errorCallback(xhr.status);
+  	return;
+  }, 120000);
+
+  xhr.onreadystatechange = function(e) {
+    if (xhr.readyState != 4) {
+      return;
+    }
+
+    if (xhr.status == 201) {
+    	clearTimeout(noResponseTimer);
+      successCallback(JSON.parse(xhr.response), xhr.status);
+    } else {
+    	errorCallback(xhr.status);
+    }
+  };
+
+  xhr.open("POST", 'https://zelda.sci.muni.cz/rest/api/photos/', true);
+  xhr.setRequestHeader("Authorization", "Token " + localStorage.userToken);
+  // xhr.setRequestHeader("Content-type", undefined);
+  // xhr.setRequestHeader("Content-type", 'multipart/form-data; charset=UTF-8');
+  for (photo in photos) {
+  	data = new FormData();
+  	data.append("image", photos[photo]);
+  	data.append("owner", 1);
+  	data.append("parameter", 1);
+  	xhr.send(data);
+  }
+}
+
 function trySending(e) {
 	e.preventDefault();
 	observationProperties.values = getFormData($("#observation"));
-	sendObservation(JSON.stringify(observationProperties), (data, status) => {
+	sendObservation(JSON.stringify(observationProperties), observationPhotos, (data, status) => {
 		console.log(status);
 		$("#bottom-sheet").modal("close");
 		Materialize.toast('Observation sent.', 4000);
