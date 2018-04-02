@@ -24,7 +24,6 @@ PRECACHE_URLS = [
 	"img/ms-icon-144x144.png",
 ];
 
-
 // the rest below handles the installing and caching
 self.addEventListener('install', event => {
   event.waitUntil(

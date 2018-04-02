@@ -1,33 +1,27 @@
 {
-  "app": {
-    "background": {}
-  },
-  "manifest_version": 2,
-  "version": "7BC942AA-B2A4-490A-82CE-F77F4228934B",
-  "short_name": "GIS4DIS collector",
   "name": "Collect VGI with GIS4DIS",
+  "short_name": "GIS4DIS VGI",
+  "start_url": "./",
+  "display": "standalone",
   "theme_color": "#3f51b5",
   "background_color": "#3f51b5",
-  // "theme_color": "#039be5",
-  // "background_color": "#039be5",
-  "display": "standalone",
-  "icons": [
-    {
+  "manifest_version": 3,
+  "version": "301EA624-B14A-4908-932E-7C11D0119DF8",
+  "icons": [{
       "src": "img/launcher-icon-1x.png",
       "type": "image/png",
       "sizes": "48x48"
-    },
-    {
+    }, {
       "src": "img/launcher-icon-2x.png",
       "type": "image/png",
       "sizes": "96x96"
-    },
-    {
+    }, {
       "src": "img/launcher-icon-4x.png",
       "type": "image/png",
       "sizes": "192x192"
-    }
-  ],
-  "start_url": "/"
-  // "start_url": "index.html?launcher=true"
+    }, {
+      "src": "img/launcher-icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }]
 }

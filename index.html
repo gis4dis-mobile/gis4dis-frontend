@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html manifest="cache.manifest">
 <head>
-  <link rel="manifest" href="manifest.json">     
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
   <meta name="msapplication-TileColor" content="#3f51b5">
   <!-- <meta name="msapplication-TileColor" content="#039be5"> -->
   <meta name="msapplication-TileImage" content="/img/ms-icon-144x144.png">
@@ -51,12 +52,12 @@
   </div>
   <script type="text/javascript">
   if ('serviceWorker' in navigator) {
-    console.log("Will the service worker register?");
+    console.log("Attempting to register the service worker.");
     navigator.serviceWorker.register('service-worker.js')
       .then(function(reg){
-        console.log("Yes, it did.");
+        console.log("Service worker successfully registered.");
       }).catch(function(err) {
-        console.log("No it didn't. This happened:", err)
+        console.log("Error registering service worker:", err)
     });
   }
   </script>
