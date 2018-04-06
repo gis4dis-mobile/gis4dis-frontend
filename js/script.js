@@ -135,6 +135,9 @@ function login() {
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
 			Materialize.toast('Login successful.', 4000);
+			if (JSON.parse(localStorage.observations).length > 0) {
+				retrySending();
+			}
 		},
 		error: (data) => displayError(data.responseJSON)
 	});
