@@ -2,6 +2,12 @@ $(document).ready(function(){
 	$('.modal').modal();
 });
 
+let checkConnection;
+let follow = false;
+let lastPosition = null;
+let observationProperties = {};
+let observationPhotos = [];
+
 if (!localStorage.observations) {
 	localStorage.observations = JSON.stringify([]);
 } else if (!Array.isArray(JSON.parse(localStorage.observations))) {
@@ -11,13 +17,6 @@ if (!localStorage.observations) {
 		retrySending();
 	}
 }
-
-let checkConnection;
-let mobile = devicePixelRatio > 1;
-let follow = false;
-let lastPosition = null;
-let observationProperties = {};
-let observationPhotos = [];
 
 let themes = (() => {
 	let json = null;
@@ -77,8 +76,15 @@ let accuracyFeature = L.circle([0, 0], 0, {
 	clickable: false
 });
 
-L.tileLayer(mobile ? 'https://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-let observationsLayer = L.geoJSON().addTo(map);
+L.tileLayer(devicePixelRatio > 1 ? 'https://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y}.png' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let observationsLayer = L.geoJSON([], {
+	onEachFeature: onEachMarker,
+}).addTo(map);
+
+function onEachMarker(feature, layer) {
+	var popupContent = "<h3>" + feature.properties.routeLabel + " (" + feature.properties.vehicleId + ")" + " &rarr; " + feature.properties.headsign + "</h3>";
+	layer.bindPopup(popupContent);
+}
 
 observationsLayer.addData(function() {
 	let json = null;
@@ -432,14 +438,14 @@ function sendObservation(data, photos, successCallback, errorCallback) {
   	xhr.abort();
   	errorCallback(xhr.status);
   	return;
-  }, 30000);
+  }, 3000);
 
   xhr.onreadystatechange = function(e) {
-    if (xhr.readyState != 4) {
+    if (xhr.readyState !== 4) {
       return;
     }
 
-    if (xhr.status == 201) {
+    if (xhr.status === 201) {
     	clearTimeout(noResponseTimer);
     	sendPhotos(photos, (data, status) => {
 				console.log(status);
@@ -454,7 +460,16 @@ function sendObservation(data, photos, successCallback, errorCallback) {
 				// retrySending();
 			});
       successCallback(JSON.parse(xhr.response), xhr.status);
+    } else if (xhr.status === 401 && JSON.parse(xhr.response).detail === "Invalid token.") {
+    	clearTimeout(noResponseTimer);
+			$("#bottom-sheet").modal("close");
+			if (localStorage.userToken === undefined) {
+				Materialize.toast($('<span>You are not signed in.</span>').add($('<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">Sign in</a>')), 4000);
+			} else {
+				Materialize.toast($('<span>Your session expired.</span>').add($('<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">Sign in</a>')), 4000);
+			}
     } else {
+    	clearTimeout(noResponseTimer);
     	errorCallback(xhr.status);
     }
   };
@@ -522,30 +537,34 @@ function trySending(e) {
 function retrySending() {
 	if (typeof checkConnection !== "undefined") return;
 
-	checkConnection = setInterval(() => {
+	checkConnection = setTimeout(() => {
 		let observations = JSON.parse(localStorage.observations);
 		console.log('Trying to send observations.', observations);
 		let sentCount = 0;
-		let failed = false;
-		while (observations.length > 0) {
-			observations = JSON.parse(localStorage.observations);
-			let observation = observations[0];
-			sendObservation(JSON.stringify(observation), (data,status) => {
-				console.log(status);
-				observationsLayer.addData(data);
-				observations.splice(0,1);
-				sentCount++;
-				localStorage.observations = JSON.stringify(observations);
-			}, (error) => {
-				Materialize.toast(`Managed to send ${sentCount} observations. ${observations.length} remaining.`, 4000);
-				failed = true;
-			});
-			if (failed) break;
+
+		function continueSending() {
+			if (observations.length > 0) {
+				observations = JSON.parse(localStorage.observations);
+				let observation = observations[0];
+				sendObservation(JSON.stringify(observation), [], (data,status) => {
+					console.log(status);
+					observationsLayer.addData(data);
+					observations.splice(0,1);
+					sentCount++;
+					localStorage.observations = JSON.stringify(observations);
+					continueSending();
+				}, (error) => {
+					checkConnection = undefined;
+					retrySending();
+					if (sentCount > 0) Materialize.toast(`Managed to send ${sentCount} observations. ${observations.length} remaining.`, 4000);
+				});
+			}
+			if (observations.length == 0) {
+				checkConnection = undefined;
+				Materialize.toast(`All ${sentCount} remaining observations sent.`, 4000);
+			}
 		}
-		if (observations.length == 0) {
-			clearInterval(checkConnection);
-			checkConnection = undefined;
-			Materialize.toast(`All ${sentCount} remaining observations sent.`, 4000);
-		}
-	}, 30000);
+
+		continueSending();
+	}, 5000);
 }
