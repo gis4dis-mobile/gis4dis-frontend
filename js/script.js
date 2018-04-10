@@ -274,6 +274,42 @@ function userInfo() {
 	loadToBottomSheet('account.html', null, () => $("#user-email").html(localStorage.email));
 }
 
+function googleLogin(token, email) {
+    $.ajax({
+        async: false,
+        global: false,
+        method: 'POST',
+        url: 'https://zelda.sci.muni.cz/rest/rest-auth/google/',
+        contentType: 'application/json; charset=UTF-8',
+        data: {'access_token': token},
+        success: (data) => {
+            localStorage.email = email;
+            localStorage.userToken = data.key;
+            $("#bottom-sheet").modal("close");
+            Materialize.toast('Login successful.', 4000);
+        },
+        error: (data) => displayError(data.responseJSON)
+    });
+}
+
+function facebookLogin(token) {
+    $.ajax({
+        async: false,
+        global: false,
+        method: 'POST',
+        url: 'https://zelda.sci.muni.cz/rest/rest-auth/facebook/',
+        contentType: 'application/json; charset=UTF-8',
+        data: {'access_token': token},
+        success: (data) => {
+            //localStorage.email = formData.email;
+            localStorage.userToken = data.key;
+            $("#bottom-sheet").modal("close");
+            Materialize.toast('Login successful.', 4000);
+        },
+        error: (data) => displayError(data.responseJSON)
+    });
+}
+
 function login() {
 	let formData = {};
 	$("#login").serializeArray().map(input => formData[input.name] = input.value);
