@@ -34,7 +34,7 @@ body {
 }
 
 .modal.bottom-sheet {
-	max-height: 70%;
+	max-height: 80%;
 }
 
 #modalHelp {
@@ -49,6 +49,7 @@ body {
 
 .carousel {
 	margin-bottom: 1rem;
+	margin-top: 1rem;
 }
 
 #photo.btn {
@@ -74,21 +75,44 @@ body {
 	margin: 2px 0 3px 15px;
 }
 
-/* Materialize overrides styling in help modal */
-.modal-content p {
-	margin-top: 10px;
-}
-
-.help ul > li {
-	list-style: initial;
-	margin: 5px 0 0 20px;
-}
-
-.help ul > li > ul > li {
-	list-style-type: circle;
-	margin: 2px 0 3px 15px;
-}
-
 #hint {
 	background-color: #ffffff;
+}
+
+.leaflet-container {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  font-weight: normal;
+  color: rgba(0,0,0,0.87);
+}
+
+.leaflet-container .footer {
+	text-align: right;
+	margin-top: 1rem;
+}
+
+.heading {
+	font-weight: bold;
+	font-size: x-large;
+	margin-top: 1rem;
+}
+
+.modal#feature-info {
+	max-height: 90%;
+	top: 0 !important;
+	bottom: 0 !important;
+}
+
+#feature-info .carousel a {
+	background-color: #fafafa;
+	min-height: 0;
+}
+
+#feature-info .carousel img {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto 0;
 }

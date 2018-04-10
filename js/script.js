@@ -18,58 +18,72 @@ if (!localStorage.observations) {
 	}
 }
 
-let themes = (() => {
-	let json = null;
-	$.ajax({
-		async: false,
-		global: false,
+function checkStatus(response) {
+  if (response.ok) {
+    return response
+  } else {
+    var error = new Error(response.statusText)
+    error.response = response
+    throw error
+  }
+}
+
+function fetchData(url) {
+	return fetch(url, {
 		headers: {
-			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
+			Authorization: localStorage.userToken ? "Token " + localStorage.userToken : undefined,
 		},
-		url: 'https://zelda.sci.muni.cz/rest/api/config/',
-		dataType: 'json',
-		success: data => json = data
-	});
-	let themes = {};
-	let colors = ["red", "yellow darken-1", "green", "blue"];
-	for (theme in json) {
-		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(&quot;observation.html&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
-		$("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + json[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + json[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
-		themes[json[theme].name] = json[theme];
+	})
+}
+
+function parseThemes(data) {
+	let tempThemes = {};
+	const colors = ["red", "yellow darken-1", "green", "blue"];
+	for (theme in data) {
+		$("#fab ul").append(`<li><a href='#bottom-sheet' class='btn-floating ${colors[theme]} waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='${data[theme].name}' onclick='loadToBottomSheet(themes, "${data[theme].name}");displayTooltips();$(".fixed-action-btn").closeFAB();'><i class='material-icons'>opacity</i></a></li>`);
+		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + data[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + data[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
+		tempThemes[data[theme].name] = data[theme];
 	};
-	return themes;
-})();
+	themes = tempThemes;
+}
 
-let config = (() => {
-	let json = null;
-	$.ajax({
-		async: false,
-		global: false,
-		headers: {
-			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
-		},
-		url: 'https://zelda.sci.muni.cz/rest/api/config/',
-		dataType: 'json',
-		success: data => json = data,
-		error: data => displayError(data.responseJSON)
-	});
-	return json;
-})();
+let configUpdated = false;
+let config;
+let themes;
+let updateConfig = fetchData('https://zelda.sci.muni.cz/rest/api/config/')
+	.then(response => response.json())
+	.then(data => config = data)
+	.catch(data => displayError(data))
+	.then(data => {
+		configUpdated = true;
+		parseThemes(data);
+	})
 
-let map = L.map('map', {
+caches.match('https://zelda.sci.muni.cz/rest/api/config/').then(function(response) {
+  if (!response) throw Error("No data");
+  return response.json();
+}).then(function(data) {
+  if (!configUpdated) {
+    parseThemes(data);
+  }
+}).catch(function() {
+  return updateConfig;
+}).catch(error => console.log(`Fetching config failed with ${error}`));
+
+const map = L.map('map', {
 	center: [49.2, 16.6],
 	zoom: 13,
 	zoomControl: false
 });
 
-let positionFeature = L.circleMarker([0, 0], {
+const positionFeature = L.circleMarker([0, 0], {
 	color: '#1A8ACB',
 	radius: 8,
 	fillOpacity: 0.8,
 	clickable: false
 });
 	
-let accuracyFeature = L.circle([0, 0], 0, {
+const accuracyFeature = L.circle([0, 0], 0, {
 	color: '#93D9EC',
 	fillOpacity: 0.4,
 	weight: 2,
@@ -82,24 +96,164 @@ let observationsLayer = L.geoJSON([], {
 }).addTo(map);
 
 function onEachMarker(feature, layer) {
-	var popupContent = "<h3>" + feature.properties.routeLabel + " (" + feature.properties.vehicleId + ")" + " &rarr; " + feature.properties.headsign + "</h3>";
+	// let popupContent = `<span class="heading">${feature.properties.values[0].phenomenon}</span><br><span>submitted by ${feature.properties.user} ${getTimeDeltaText(feature.properties.observation_date)}</span><br>`;
+	let popupContent = `<span class="heading">${feature.properties.values[0].phenomenon}</span><br><span>${getTimeDeltaText(feature.properties.observation_date)}</span><br>`;
+
+	for (value in feature.properties.values) {
+		popupContent += `<br><b>${feature.properties.values[value].parameter}:</b> <span>${feature.properties.values[value].value}</span>`;
+	}
+
+	if (!!feature.properties.photos) {
+		if (feature.properties.photos.length > 0) popupContent += `<br><span>${feature.properties.photos.length} photo${feature.properties.photos.length > 1 ? "s" : ""} available</span>`;
+	}
+
+	popupContent += `<br><div class="footer"><a class="waves-effect waves-light btn-flat modal-trigger" href="#feature-info" onclick="fillFeatureInfo(${feature.id});">More info</a></div>`;
+
 	layer.bindPopup(popupContent);
 }
 
-observationsLayer.addData(function() {
-	let json = null;
-	$.ajax({
-		async: false,
-		global: false,
-		headers: {
-			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
+let observationsUpdated = false;
+let observations;
+let updateObservations = fetchData('https://zelda.sci.muni.cz/rest/api/observations/')
+	.then(response => response.json())
+	.then(data => observations = data)
+	.catch(error => console.log(`Fetching observations failed with ${error}`))
+	.then(data => {
+		observationsUpdated = true;
+		observationsLayer.addData(data)
+	})
+
+caches.match('https://zelda.sci.muni.cz/rest/api/observations/').then(function(response) {
+  if (!response) throw Error("No data");
+  return response.json();
+}).then(function(data) {
+  if (!observationsUpdated) {
+    observationsLayer.addData(data);
+  }
+}).catch(function() {
+  return updateObservations;
+}).catch(error => console.log(`Fetching observations failed with ${error}`));
+
+// (() => {
+// 	$.ajax({
+// 		async: false,
+// 		global: false,
+// 		headers: {
+// 			'Authorization': localStorage.userToken ? "Token " + localStorage.userToken : undefined,
+// 		},
+// 		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
+// 		dataType: 'json',
+// 		success: (data) => observations = data
+// 	});
+// })()
+
+function getTimeDeltaText(t1, t2 = Date.now()) {
+	if (typeof(t1) === "string") t1 = Date.parse(t1);
+	if (typeof(t2) === "string") t2 = Date.parse(t2);
+
+	const d = t2 - t1;
+	const dY = d/1000/60/60/24/365;
+	const dM = d/1000/60/60/24/30.5;
+	const dW = d/1000/60/60/24/7;
+	const dD = d/1000/60/60/24;
+	const dh = d/1000/60/60;
+	const dm = d/1000/60;
+	const ds = d/1000;
+
+	if (dY > 2) {
+		return `${Math.floor(dY)} years ago`;
+	}
+	if (dY > 1) {
+		return `a year ago`;
+	}
+	if (dM > 2) {
+		return `${Math.floor(dM)} months ago`;
+	}
+	if (dM > 1) {
+		return `a month ago`;
+	}
+	if (dW > 2) {
+		return `${Math.floor(dW)} weeks ago`;
+	}
+	if (dW > 1) {
+		return `a week ago`;
+	}
+	if (dD > 2) {
+		return `${Math.floor(dD)} days ago`;
+	}
+	if (dD > 1) {
+		return `a day ago`;
+	}
+	if (dh > 2) {
+		return `${Math.floor(dh)} hours ago`;
+	}
+	if (dh > 1) {
+		return `an hour ago`;
+	}
+	if (dm > 2) {
+		return `${Math.floor(dm)} minutes ago`;
+	}
+	if (dm > 1) {
+		return `a minute ago`;
+	}
+	if (ds > 2) {
+		return `${Math.floor(ds)} seconds ago`;
+	}
+	if (ds > 1) {
+		return `a second ago`;
+	}
+}
+
+function fillFeatureInfo(id) {
+	const properties = observations.features.find(x => x.id === id).properties;
+	const d = new Date(properties.observation_date);
+	// modalContent.html(`<span class="heading">${properties.values[0].phenomenon}</span><br><span>submitted by ${properties.user} on ${d.toLocaleDateString()}, ${d.toLocaleTimeString()}</span><br>`);
+	let modalContent = $("#feature-info .modal-content");
+	modalContent.html(`<span class="heading">${properties.values[0].phenomenon}</span><br><span>submitted on ${d.toLocaleDateString()}, ${d.toLocaleTimeString()}</span><br>`);
+
+	for (value in properties.values) {
+		const v = properties.values[value];
+		modalContent.append(`<br><b>${v.parameter}:</b> <span>${v.value}</span>`);
+	}
+
+	if (!!properties.photos) {
+		if (properties.photos.length > 0) {
+			let carousel = $("<div class='carousel carousel-slider center' data-indicators='true'/>");
+
+			for (photo in properties.photos) {
+				const p = properties.photos[photo];
+				carousel.append(`<a class="carousel-item"><img src="https://zelda.sci.muni.cz${p.image}"></a>`);
+			}
+
+			modalContent.append(carousel);
+
+			$('.carousel').carousel({
+				fullWidth: true,
+				duration: 100,
+				shift: 100,
+				padding: 100,
+			});
+		}
+	}
+
+	$("#feature-info.modal").modal({
+		startingTop: '10%',
+		endingTop: '10%',
+		ready: function() {
+			let minHeight = 9999;
+
+			$("#feature-info .carousel img").each(function(index) {
+				minHeight = $(this).height() < minHeight ? $(this).height() : minHeight;
+			});
+
+			$("#feature-info .carousel").height(minHeight);
 		},
-		url: 'https://zelda.sci.muni.cz/rest/api/observations/',
-		dataType: 'json',
-		success: (data) => json = data
-	});
-	return json;
-}());
+		complete: function() {
+			$("#feature-info .modal-content").html("");
+			delete modalContent;
+		},
+	})
+}
 
 function displayError(err) {
 	console.log(err);
@@ -224,11 +378,12 @@ function loadToBottomSheet(template, label, callback) {
 
 	position = lastPosition ? lastPosition : map.getCenter()
 
-	let time = new Date();
+	const time = new Date();
 	observationProperties = {
 		geometry: "POINT(" + position.lng + " " + position.lat + ")",
-		observation_time: ("0" + time.getHours()).substr(-2) + ":" + ("0" + time.getMinutes()).substr(-2) + ":" + ("0" + time.getSeconds()).substr(-2),
-		date: time.getFullYear() + "-" + ("0" + (time.getMonth() + 1)).substr(-2) + "-" + ("0" + time.getDate()).substr(-2),
+		observation_date: time.toISOString(),
+		// observation_time: ("0" + time.getHours()).substr(-2) + ":" + ("0" + time.getMinutes()).substr(-2) + ":" + ("0" + time.getSeconds()).substr(-2),
+		// date: time.getFullYear() + "-" + ("0" + (time.getMonth() + 1)).substr(-2) + "-" + ("0" + time.getDate()).substr(-2),
 		values: []
 	};
 	observationPhotos = [];
@@ -244,7 +399,7 @@ function loadToBottomSheet(template, label, callback) {
 		// enctype: "multipart/form-data"
 	});
 	for (parameter in theme.parameters) {
-		let idName = theme.parameters[parameter].name.toLowerCase().replace(/ /g, "-");
+		const idName = theme.parameters[parameter].name.toLowerCase().replace(/ /g, "-");
 		switch (theme.parameters[parameter].element) {
 			case "select":
 				let parameterOptions = [$("<option/>", {
@@ -253,7 +408,7 @@ function loadToBottomSheet(template, label, callback) {
 					selected: true,
 					text: "Choose an option"
 				})];
-				let options = theme.parameters[parameter].options
+				const options = theme.parameters[parameter].options
 				for (option in options) {
 					parameterOptions.push($("<option/>", {
 						value: options[option].value,
@@ -380,7 +535,7 @@ function displayTooltips() {
 }
 
 function displayThumbnail() {
-	var me = this;
+	let me = this;
 
 	if (observationPhotos.length === 0) {
 		$("<div/>", {
@@ -390,7 +545,7 @@ function displayThumbnail() {
 		}).insertBefore("form#observation input#photoInput");
 	}
 
-	var reader = new FileReader();
+	let reader = new FileReader();
 	reader.onload = function(e) {
 		observationPhotos.push(e.target.result);
 
@@ -415,13 +570,11 @@ function displayThumbnail() {
 
 function getFormData($form) {
 	let rawProperties = $form.serializeArray();	
-	// let phenomenonId = themes[$form[0].name];
-	let phenomenonId = 1;
+	let phenomenonId = themes[$form[0].name].id;
 	let properties = rawProperties.map(property => {
 		let parameter = themes[$form[0].name].parameters.find(parameter => parameter.name == property.name);
 		return {
 			parameter: parameter.id,
-			// parameter: parseInt(Math.random()*10),
 			value: property.value,
 			phenomenon: phenomenonId
 		}
@@ -514,6 +667,7 @@ function sendPhotos(photos, successCallback, errorCallback) {
   	data.append("image", photos[photo]);
   	data.append("owner", 1);
   	data.append("parameter", 1);
+  	data.append("phenomenon", 1);
   	xhr.send(data);
   }
 }

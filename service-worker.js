@@ -1,7 +1,7 @@
-var PRECACHE = 'precache-v2';
-var RUNTIME = 'runtime';
+const PRECACHE = 'precache-v3';
+const RUNTIME = 'runtime';
+const TILES = 'tiles';
 
-// list the files you want cached by the service worker
 PRECACHE_URLS = [
 	"index.html",
 	"./",
@@ -24,7 +24,6 @@ PRECACHE_URLS = [
 	"img/ms-icon-144x144.png",
 ];
 
-// the rest below handles the installing and caching
 self.addEventListener('install', event => {
   event.waitUntil(
      caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(self.skipWaiting())
@@ -32,7 +31,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  const currentCaches = [PRECACHE, RUNTIME];
+  const currentCaches = [PRECACHE, RUNTIME, TILES];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));
@@ -41,11 +40,12 @@ self.addEventListener('activate', event => {
         return caches.delete(cacheToDelete);
       }));
     }).then(() => self.clients.claim())
+    .then(() => console.log(`Hello from the new service worker with ${PRECACHE}`))
   );
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.url.startsWith(self.location.origin)) {
+  if (event.request.method === "GET" && (event.request.url.startsWith(self.location.origin) || event.request.url.startsWith("https://zelda.sci.muni.cz"))) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
@@ -54,7 +54,22 @@ self.addEventListener('fetch', event => {
 
         return caches.open(RUNTIME).then(cache => {
           return fetch(event.request).then(response => {
-            // Put a copy of the response in the runtime cache.
+            return cache.put(event.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
+      })
+    );
+  } else if (/(https:\/\/[a-c](.tile.openstreetmap.org|.osm.rrze.fau.de\/osmhd))/.test(event.request.url)) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return caches.open(TILES).then(cache => {
+          return fetch(event.request).then(response => {
             return cache.put(event.request, response.clone()).then(() => {
               return response;
             });
