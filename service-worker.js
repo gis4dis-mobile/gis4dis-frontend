@@ -1,4 +1,4 @@
-const PRECACHE = 'precache-v3';
+const PRECACHE = 'precache-v4';
 const RUNTIME = 'runtime';
 const TILES = 'tiles';
 
@@ -22,6 +22,7 @@ PRECACHE_URLS = [
 	"img/launcher-icon-2x.png",
 	"img/launcher-icon-4x.png",
 	"img/ms-icon-144x144.png",
+  "https://fonts.googleapis.com/icon?family=Material+Icons",
 ];
 
 self.addEventListener('install', event => {
@@ -53,22 +54,6 @@ self.addEventListener('fetch', event => {
         }
 
         return caches.open(RUNTIME).then(cache => {
-          return fetch(event.request).then(response => {
-            return cache.put(event.request, response.clone()).then(() => {
-              return response;
-            });
-          });
-        });
-      })
-    );
-  } else if (/(https:\/\/[a-c](.tile.openstreetmap.org|.osm.rrze.fau.de\/osmhd))/.test(event.request.url)) {
-    event.respondWith(
-      caches.match(event.request).then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return caches.open(TILES).then(cache => {
           return fetch(event.request).then(response => {
             return cache.put(event.request, response.clone()).then(() => {
               return response;
