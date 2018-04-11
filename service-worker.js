@@ -1,4 +1,4 @@
-const PRECACHE = 'precache-v4';
+const PRECACHE = 'precache-v5';
 const RUNTIME = 'runtime';
 const TILES = 'tiles';
 
@@ -17,12 +17,16 @@ PRECACHE_URLS = [
 	"node_modules/jquery/dist/jquery.min.js",
 	"node_modules/materialize-css/dist/js/materialize.min.js",
 	"node_modules/leaflet/dist/leaflet.js",
+  "node_modules/material-design-icons/iconfont/material-icons.css",
+  "node_modules/material-design-icons/iconfont/MaterialIcons-Regular.eot",
+  "node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff2",
+  "node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff",
+  "node_modules/material-design-icons/iconfont/MaterialIcons-Regular.ttf",
 	"css/style.css",
 	"img/launcher-icon-1x.png",
 	"img/launcher-icon-2x.png",
 	"img/launcher-icon-4x.png",
 	"img/ms-icon-144x144.png",
-  "https://fonts.googleapis.com/icon?family=Material+Icons",
 ];
 
 self.addEventListener('install', event => {
