@@ -720,7 +720,7 @@ function sendObservation(data, photos, successCallback, errorCallback) {
   	xhr.abort();
   	errorCallback(xhr.status);
   	return;
-  }, 3000);
+  }, 30000);
 
   xhr.onreadystatechange = function(e) {
     if (xhr.readyState !== 4) {
@@ -849,5 +849,5 @@ function retrySending() {
 		}
 
 		continueSending();
-	}, 5000);
+	}, 30000);
 }
