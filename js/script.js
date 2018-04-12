@@ -325,40 +325,58 @@ function userInfo() {
 }
 
 function googleLogin(token, email) {
+	//console.log({'access_token': token});
+	//console.log(JSON.stringify({'access_token': token}));
+
     $.ajax({
         async: false,
         global: false,
         method: 'POST',
         url: 'https://zelda.sci.muni.cz/rest/rest-auth/google/',
         contentType: 'application/json; charset=UTF-8',
-        data: {'access_token': token},
+        data: JSON.stringify({'access_token': token}),
         success: (data) => {
             localStorage.email = email;
             localStorage.userToken = data.key;
             $("#bottom-sheet").modal("close");
             Materialize.toast($.i18n("g4d-toast-loginsuccessful"), 4000);
         },
-        error: (data) => displayError(data.responseJSON)
+        error: (data) => {
+            console.log(data);
+            Materialize.toast('Login failed.', 4000);
+        }
     });
 }
 
-function facebookLogin(token) {
+function onSignIn(googleUser) {
+    let profile = googleUser.getBasicProfile();
+    googleLogin(googleUser.getAuthResponse(true).access_token, profile.getEmail());
+}
+
+function facebookLogin(token, email) {
+    console.log({'access_token': token});
+    console.log('email: '+email);
+
     $.ajax({
         async: false,
         global: false,
         method: 'POST',
         url: 'https://zelda.sci.muni.cz/rest/rest-auth/facebook/',
         contentType: 'application/json; charset=UTF-8',
-        data: {'access_token': token},
+        data: JSON.stringify({'access_token': token}),
         success: (data) => {
-            //localStorage.email = formData.email;
+            localStorage.email = email;
             localStorage.userToken = data.key;
             $("#bottom-sheet").modal("close");
             Materialize.toast($.i18n("g4d-toast-loginsuccessful"), 4000);
         },
-        error: (data) => displayError(data.responseJSON)
+        error: (data) => {
+        	console.log(data);
+			Materialize.toast('Login failed.', 4000);
+        }
     });
 }
+
 
 function login() {
 	let formData = {};
