@@ -763,40 +763,52 @@ function sendObservation(data, photos, successCallback, errorCallback) {
 }
 
 function sendPhotos(photos, successCallback, errorCallback) {
-  let xhr = new XMLHttpRequest();
-
-  let noResponseTimer = setTimeout(() => {
-  	xhr.abort();
-  	errorCallback(xhr.status);
-  	return;
-  }, 120000);
-
-  xhr.onreadystatechange = function(e) {
-    if (xhr.readyState != 4) {
-      return;
-    }
-
-    if (xhr.status == 201) {
-    	clearTimeout(noResponseTimer);
-      successCallback(JSON.parse(xhr.response), xhr.status);
-    } else {
-    	errorCallback(xhr.status);
-    }
-  };
-
-  xhr.open("POST", 'https://zelda.sci.muni.cz/rest/api/photos/', true);
-  xhr.setRequestHeader("Authorization", "Token " + localStorage.userToken);
-  // xhr.setRequestHeader("Content-type", undefined);
-  // xhr.setRequestHeader("Content-type", 'multipart/form-data; charset=UTF-8');
   for (photo in photos) {
-  	data = new FormData();
+  	let data = new FormData();
   	data.append("image", photos[photo]);
   	data.append("owner", 1);
   	data.append("parameter", 1);
   	data.append("phenomenon", 1);
-  	xhr.send(data);
+		fetch('https://zelda.sci.muni.cz/rest/api/photos/', {
+			method: "POST",
+			body: data,
+			headers: {
+				Authorization: localStorage.userToken ? "Token " + localStorage.userToken : undefined,
+			},
+		})
+		.then(response => response.json())
+		.then(data => console.log(data))
+		.catch(data => displayError(data));
   }
 }
+
+// function sendPhotos(photos, successCallback, errorCallback) {
+//   let xhr = new XMLHttpRequest();
+
+//   let noResponseTimer = setTimeout(() => {
+//   	xhr.abort();
+//   	errorCallback(xhr.status);
+//   	return;
+//   }, 120000);
+
+//   xhr.onreadystatechange = function(e) {
+//     if (xhr.readyState != 4) {
+//       return;
+//     }
+
+//     if (xhr.status == 201) {
+//     	clearTimeout(noResponseTimer);
+//       successCallback(JSON.parse(xhr.response), xhr.status);
+//     } else {
+//     	errorCallback(xhr.status);
+//     }
+//   };
+
+//   xhr.open("POST", 'https://zelda.sci.muni.cz/rest/api/photos/', true);
+//   xhr.setRequestHeader("Authorization", "Token " + localStorage.userToken);
+//   // xhr.setRequestHeader("Content-type", undefined);
+//   // xhr.setRequestHeader("Content-type", 'multipart/form-data; charset=UTF-8');
+// }
 
 function trySending(e) {
 	e.preventDefault();
