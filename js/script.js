@@ -305,7 +305,7 @@ function fillFeatureInfo(id) {
 function displayError(err) {
 	console.log(err);
 	$('#error .modal-content ul').remove();
-	$('#error .modal-content').html("<h4 style='color:red'>Error</h4>");
+	$('#error .modal-content').html(`<h4 class="translate" data-args="g4d-error" style="color:red">Error</h4>`);
 	$('#error .modal-content').append("<ul></ul>")
 	for (a in err) {
 		for (b in err[a]) $('#error .modal-content ul').append("<li>" + err[a][b] + "</li>");
@@ -407,6 +407,24 @@ function logout() {
 	delete localStorage.userToken;
 	$("#bottom-sheet").modal("close");
 	Materialize.toast($.i18n("g4d-toast-logoutsuccessful"), 4000);
+}
+
+function resetPassword() {
+	let formData = {};
+	$("#resetPassword").serializeArray().map(input => formData[input.name] = input.value);
+	$.ajax({
+		async: false,
+		global: false,
+		method: 'POST',
+		url: 'https://zelda.sci.muni.cz/rest/rest-auth/password/reset/',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(formData),
+		success: (data) => {
+			$("#bottom-sheet").modal("close");
+			Materialize.toast($.i18n("g4d-toast-passresetsuccessful"), 4000);
+		},
+		error: (data) => displayError(data.responseJSON)
+	});
 }
 
 function registration() {
