@@ -40,12 +40,72 @@ function parseThemes(data) {
 	let tempThemes = {};
 	const colors = ["red", "yellow darken-1", "green", "blue"];
 	for (theme in data) {
-		$("#fab ul").append(`<li><a href='#bottom-sheet' class='btn-floating ${colors[theme]} waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='${data[theme].name}' onclick='loadToBottomSheet(themes, "${data[theme].name}");displayTooltips();$(".fixed-action-btn").closeFAB();'><i class='material-icons'>opacity</i></a></li>`);
+		$("#fab ul").append(`<li><a href='#bottom-sheet' class='btn-floating ${colors[theme]} waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-args="${data[theme].i18n_tag}" data-tooltip='${$.i18n(data[theme].i18n_tag)}' onclick='loadToBottomSheet(themes, "${data[theme].name}");displayTooltips();$(".fixed-action-btn").closeFAB();'><i class='material-icons'>opacity</i></a></li>`);
 		// $("#fab ul").append("<li><a href='#bottom-sheet' class='btn-floating " + colors[theme] + " waves-effect waves-light modal-trigger tooltipped' data-position='left' data-delay='50' data-tooltip='" + data[theme].name + "' onclick='loadToBottomSheet(themes, &quot;" + data[theme].name + "&quot;);displayTooltips();$(&quot;.fixed-action-btn&quot;).closeFAB();'><i class='material-icons'>opacity</i></a></li>");
 		tempThemes[data[theme].name] = data[theme];
 	};
 	themes = tempThemes;
 }
+
+function parseLocalization(loc) {
+	return loc.reduce((acc, curr) => {
+		for (l in curr) {
+			if (l in acc) {
+				Object.assign(acc[l], curr[l]);
+      } else {
+				acc[l] = curr[l]
+			}
+		}
+		return acc
+	}, {});
+}
+
+function setLanguageTo(lang) {
+	$.i18n().locale = lang;
+	translate();
+}
+
+function translate() {
+  $('.translate').each((i, el) => {
+    let args = [];
+    $this = $(el);
+    if ($this.data('args')) args = $this.data('args').split(',');
+    $this.html( $.i18n.apply(null, args) );
+  });
+	$(".tooltipped").each((i, el) => {
+    let args = [];
+    $this = $(el);
+    if ($this.data('args')) args = $this.data('args').split(',');
+    $this.attr("data-tooltip", $.i18n.apply(null, args) );
+	});
+	$('.tooltipped').tooltip({delay: 50});
+}
+
+let localizationUpdated = false;
+let localization;
+let updateLocalization = fetchData('https://zelda.sci.muni.cz/rest/api/localization/')
+	.then(response => response.json())
+	.then(data => localization = parseLocalization(data))
+	.catch(data => displayError(data))
+	.then(data => {
+		localizationUpdated = true;
+		$.i18n().load(localization).done( function() { console.log('done!') } );
+		$.i18n().locale = "en";
+		$( document ).ready(function() {
+			setLanguageTo("en");
+			console.log($.i18n('g4d-title'));
+		});
+	})
+
+caches.match('https://zelda.sci.muni.cz/rest/api/localization/').then(function(response) {
+  if (!response) throw Error("No data");
+  return response.json();
+}).then(function(data) {
+  if (!localizationUpdated) {
+  }
+}).catch(function() {
+  return updateLocalization;
+}).catch(error => console.log(`Fetching localization failed with ${error}`));
 
 let configUpdated = false;
 let config;
@@ -56,7 +116,10 @@ let updateConfig = fetchData('https://zelda.sci.muni.cz/rest/api/config/')
 	.catch(data => displayError(data))
 	.then(data => {
 		configUpdated = true;
-		parseThemes(data);
+		$(document).ready(() => {
+			parseThemes(data);
+			$('.tooltipped').tooltip({delay: 50});
+		});
 	})
 
 caches.match('https://zelda.sci.muni.cz/rest/api/config/').then(function(response) {
@@ -94,20 +157,23 @@ L.tileLayer(devicePixelRatio > 1 ? 'https://{s}.osm.rrze.fau.de/osmhd/{z}/{x}/{y
 let observationsLayer = L.geoJSON([], {
 	onEachFeature: onEachMarker,
 }).addTo(map);
+observationsLayer.on("popupopen", () => translate());
 
 function onEachMarker(feature, layer) {
-	// let popupContent = `<span class="heading">${feature.properties.values[0].phenomenon}</span><br><span>submitted by ${feature.properties.user} ${getTimeDeltaText(feature.properties.observation_date)}</span><br>`;
-	let popupContent = `<span class="heading">${feature.properties.values[0].phenomenon}</span><br><span>${getTimeDeltaText(feature.properties.observation_date)}</span><br>`;
+	const phenomenon = feature.properties.values[0].phenomenon;
+	// let popupContent = `<span class="heading">${feature.properties.values[0].phenomenon}</span><br><span>submitted by ${feature.properties.user} ${getTimeDelta(feature.properties.observation_date)}</span><br>`;
+	let popupContent = `<span class="heading translate" data-args="${phenomenon.i18n_tag}">${phenomenon.name}</span><br><span class="translate" data-args="${getTimeDelta(feature.properties.observation_date)[1]},${getTimeDelta(feature.properties.observation_date)[0]}">${getTimeDelta(feature.properties.observation_date)[2]}</span><br>`;
 
-	for (value in feature.properties.values) {
-		popupContent += `<br><b>${feature.properties.values[value].parameter}:</b> <span>${feature.properties.values[value].value}</span>`;
+	for (val in feature.properties.values) {
+		const value = feature.properties.values[val];
+		popupContent += `<br><b class="translate" data-args="${value.parameter.i18n_tag}">${value.parameter.name}:</b> <span ${typeof(value.value) === "object" ? "i18n_tag" in value.value ? `class="translate" data-args="${value.value.i18n_tag}"` : `` : ``}>${typeof(value.value) === "object" ? value.value.value : value.value}</span>`;
 	}
 
 	if (!!feature.properties.photos) {
-		if (feature.properties.photos.length > 0) popupContent += `<br><span>${feature.properties.photos.length} photo${feature.properties.photos.length > 1 ? "s" : ""} available</span>`;
+		if (feature.properties.photos.length > 0) popupContent += `<br><span class="translate" data-args="g4d-info-photocount,${feature.properties.photos.length}">${feature.properties.photos.length} photo${feature.properties.photos.length > 1 ? "s" : ""} available</span>`;
 	}
 
-	popupContent += `<br><div class="footer"><a class="waves-effect waves-light btn-flat modal-trigger" href="#feature-info" onclick="fillFeatureInfo(${feature.id});">More info</a></div>`;
+	popupContent += `<br><div class="footer"><a class="waves-effect waves-light btn-flat modal-trigger translate" data-args="g4d-info-more" href="#feature-info" onclick="fillFeatureInfo(${feature.id});">More info</a></div>`;
 
 	layer.bindPopup(popupContent);
 }
@@ -147,7 +213,7 @@ caches.match('https://zelda.sci.muni.cz/rest/api/observations/').then(function(r
 // 	});
 // })()
 
-function getTimeDeltaText(t1, t2 = Date.now()) {
+function getTimeDelta(t1, t2 = Date.now()) {
 	if (typeof(t1) === "string") t1 = Date.parse(t1);
 	if (typeof(t2) === "string") t2 = Date.parse(t2);
 
@@ -160,60 +226,40 @@ function getTimeDeltaText(t1, t2 = Date.now()) {
 	const dm = d/1000/60;
 	const ds = d/1000;
 
-	if (dY > 2) {
-		return `${Math.floor(dY)} years ago`;
-	}
 	if (dY > 1) {
-		return `a year ago`;
-	}
-	if (dM > 2) {
-		return `${Math.floor(dM)} months ago`;
+		return [Math.floor(dY), "g4d-info-yearago" ,`${Math.floor(dY)} year${Math.floor(dY) < 2 ? "" : "s"} ago`];
 	}
 	if (dM > 1) {
-		return `a month ago`;
-	}
-	if (dW > 2) {
-		return `${Math.floor(dW)} weeks ago`;
+		return [Math.floor(dM), "g4d-info-monthago" ,`${Math.floor(dM)} month${Math.floor(dM) < 2 ? "" : "s"} ago`];
 	}
 	if (dW > 1) {
-		return `a week ago`;
-	}
-	if (dD > 2) {
-		return `${Math.floor(dD)} days ago`;
+		return [Math.floor(dW), "g4d-info-weekago" ,`${Math.floor(dW)} week${Math.floor(dW) < 2 ? "" : "s"} ago`];
 	}
 	if (dD > 1) {
-		return `a day ago`;
-	}
-	if (dh > 2) {
-		return `${Math.floor(dh)} hours ago`;
+		return [Math.floor(dD), "g4d-info-dayago" ,`${Math.floor(dD)} day${Math.floor(dD) < 2 ? "" : "s"} ago`];
 	}
 	if (dh > 1) {
-		return `an hour ago`;
-	}
-	if (dm > 2) {
-		return `${Math.floor(dm)} minutes ago`;
+		return [Math.floor(dh), "g4d-info-hourago" ,`${Math.floor(dh)} hour${Math.floor(dh) < 2 ? "" : "s"} ago`];
 	}
 	if (dm > 1) {
-		return `a minute ago`;
+		return [Math.floor(dm), "g4d-info-minuteago" ,`${Math.floor(dm)} minute${Math.floor(dm) < 2 ? "" : "s"} ago`];
 	}
-	if (ds > 2) {
-		return `${Math.floor(ds)} seconds ago`;
-	}
-	if (ds > 1) {
-		return `a second ago`;
+	else {
+		return [Math.floor(ds), "g4d-info-secondago" ,`${Math.floor(ds)} second${Math.floor(ds) < 2 ? "" : "s"} ago`];
 	}
 }
 
 function fillFeatureInfo(id) {
 	const properties = observations.features.find(x => x.id === id).properties;
+	const phenomenon = properties.values[0].phenomenon;
 	const d = new Date(properties.observation_date);
 	// modalContent.html(`<span class="heading">${properties.values[0].phenomenon}</span><br><span>submitted by ${properties.user} on ${d.toLocaleDateString()}, ${d.toLocaleTimeString()}</span><br>`);
 	let modalContent = $("#feature-info .modal-content");
-	modalContent.html(`<span class="heading">${properties.values[0].phenomenon}</span><br><span>submitted on ${d.toLocaleDateString()}, ${d.toLocaleTimeString()}</span><br>`);
+	modalContent.html(`<span class="heading translate" data-args="${phenomenon.i18n_tag}">${phenomenon.name}</span><br><span class="translate" data-args="g4d-info-submitted-on,${d.toLocaleDateString()},${d.toLocaleTimeString()}">submitted on ${d.toLocaleDateString()}, ${d.toLocaleTimeString()}</span><br>`);
 
 	for (value in properties.values) {
 		const v = properties.values[value];
-		modalContent.append(`<br><b>${v.parameter}:</b> <span>${v.value}</span>`);
+		modalContent.append(`<br><b class="translate" data-args="${v.parameter.i18n_tag}">${v.parameter.name}:</b> <span ${typeof(v.value) === "object" ? "i18n_tag" in v.value ? `class="translate" data-args="${v.value.i18n_tag}"` : `` : ``}>${typeof(v.value) === "object" ? v.value.value : v.value}</span>`);
 	}
 
 	if (!!properties.photos) {
@@ -247,6 +293,7 @@ function fillFeatureInfo(id) {
 			});
 
 			$("#feature-info .carousel").height(minHeight);
+			translate();
 		},
 		complete: function() {
 			$("#feature-info .modal-content").html("");
@@ -263,6 +310,9 @@ function displayError(err) {
 	for (a in err) {
 		for (b in err[a]) $('#error .modal-content ul').append("<li>" + err[a][b] + "</li>");
 	}
+	$('#error').modal({
+		ready: () => translate(),
+	});
 	$('#error').modal('open');
 }
 
@@ -286,7 +336,7 @@ function googleLogin(token, email) {
             localStorage.email = email;
             localStorage.userToken = data.key;
             $("#bottom-sheet").modal("close");
-            Materialize.toast('Login successful.', 4000);
+            Materialize.toast($.i18n("g4d-toast-loginsuccessful"), 4000);
         },
         error: (data) => displayError(data.responseJSON)
     });
@@ -304,7 +354,7 @@ function facebookLogin(token) {
             //localStorage.email = formData.email;
             localStorage.userToken = data.key;
             $("#bottom-sheet").modal("close");
-            Materialize.toast('Login successful.', 4000);
+            Materialize.toast($.i18n("g4d-toast-loginsuccessful"), 4000);
         },
         error: (data) => displayError(data.responseJSON)
     });
@@ -324,7 +374,7 @@ function login() {
 			localStorage.email = formData.email;
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
-			Materialize.toast('Login successful.', 4000);
+			Materialize.toast($.i18n("g4d-toast-loginsuccessful"), 4000);
 			if (JSON.parse(localStorage.observations).length > 0) {
 				retrySending();
 			}
@@ -338,7 +388,7 @@ function logout() {
 	delete localStorage.email;
 	delete localStorage.userToken;
 	$("#bottom-sheet").modal("close");
-	Materialize.toast('Logout successful.', 4000);
+	Materialize.toast($.i18n("g4d-toast-logoutsuccessful"), 4000);
 }
 
 function registration() {
@@ -355,7 +405,7 @@ function registration() {
 			localStorage.email = formData.email;
 			localStorage.userToken = data.key;
 			$("#bottom-sheet").modal("close");
-			Materialize.toast('Registration successful.', 4000);
+			Materialize.toast($.i18n("g4d-toast-registrationsuccessful"), 4000);
 		},
 		error: (data) => displayError(data.responseJSON)
 	});
@@ -408,6 +458,7 @@ function loadToBottomSheet(template, label, callback) {
 		$('#bottom-sheet').load("templates/" + template, () => {
 			$('select').material_select();
 			if (callback) callback();
+			translate();
 		});
 		return;
 	}
@@ -442,20 +493,20 @@ function loadToBottomSheet(template, label, callback) {
 					value: "",
 					disabled: true,
 					selected: true,
-					text: "Choose an option"
+					text: $.i18n("g4d-chooseoption")
 				})];
 				const options = theme.parameters[parameter].options
 				for (option in options) {
 					parameterOptions.push($("<option/>", {
 						value: options[option].value,
-						text: options[option].value
+						text: $.i18n(options[option].i18n_tag)
 					}))
 				};
 				observationForm.append($("<div/>", {
 					class: "input-field"
 				}).append($("<select/>", {
 					name: theme.parameters[parameter].name
-				}).append(parameterOptions), "<label>" + theme.parameters[parameter].name + "</label>"));
+				}).append(parameterOptions), `<label class="translate" data-args="${theme.parameters[parameter].i18n_tag}">${theme.parameters[parameter].name}</label>`));
 				break;
 			case "input":
 				let type, step;
@@ -481,7 +532,7 @@ function loadToBottomSheet(template, label, callback) {
 					type: type,
 					step: step ? step : undefined,
 					class: "validate"
-				}), "<label for='" + idName + "''>" + theme.parameters[parameter].name + "</label>"));
+				}), `<label for="${idName}" class="translate" data-args="${theme.parameters[parameter].i18n_tag}">${theme.parameters[parameter].name}</label>`));
 				break;
 		};
 	};
@@ -519,9 +570,10 @@ function loadToBottomSheet(template, label, callback) {
 		text: "add_a_photo"
 	}))," ",
 	$("<button/>", {
-		class: "btn waves-effect waves-light",
+		class: "btn waves-effect waves-light translate",
 		type: "submit",
 		name: "submit",
+		"data-args": "g4d-submit",
 		text: "Submit"
 	}).append($("<i/>", {
 		class: "material-icons right",
@@ -534,9 +586,10 @@ function loadToBottomSheet(template, label, callback) {
 			id: "modalHelp",
 			href: "#hint",
 			class: "waves-effect waves-light modal-trigger",
-			html: "<i class='material-icons'>help</i></a>"
+			html: "<i class='material-icons'>help</i></a>",
+			onclick: showHint(themes[theme.name])
 		}),
-		"<h4>" + theme.name + "</h4>",
+		`<h4 class="translate" data-args="${theme.i18n_tag}">${theme.name}</h4>`,
 		"<br>",
 		observationForm
 	]);
@@ -550,12 +603,13 @@ function loadToBottomSheet(template, label, callback) {
 	$("#photoInput").change(displayThumbnail);
 
 	if (callback) callback();
+	translate();
 	// return;
 }
 
-function showHint(hint) {
-	$('#hint .modal-content').html("<h4>" + hint[0].name + "</h4>");
-	$('#hint .modal-content').append(hint[0].text);
+function showHint(theme) {
+	$('#hint .modal-content').html(`<h4>${$.i18n(theme.i18n_tag)}</h4>`);
+	$('#hint .modal-content').append($.i18n(theme.help[0].i18n_tag));
 }
 
 function displayTooltips() {
@@ -641,11 +695,11 @@ function sendObservation(data, photos, successCallback, errorCallback) {
     	clearTimeout(noResponseTimer);
     	sendPhotos(photos, (data, status) => {
 				console.log(status);
-				Materialize.toast('Photo sent.', 4000);
+				Materialize.toast($.i18n("g4d-toast-photosent"), 4000);
 				// observationsLayer.addData(data);
 			}, (error) => {
 				console.log(error);
-				Materialize.toast('Sending photo failed.', 4000);
+				Materialize.toast($.i18n("g4d-toast-photofailed"), 4000);
 				// let observations = JSON.parse(localStorage.observations);
 				// observations.push(observationProperties)
 				// localStorage.observations = JSON.stringify(observations);
@@ -656,9 +710,9 @@ function sendObservation(data, photos, successCallback, errorCallback) {
     	clearTimeout(noResponseTimer);
 			$("#bottom-sheet").modal("close");
 			if (localStorage.userToken === undefined) {
-				Materialize.toast($('<span>You are not signed in.</span>').add($('<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">Sign in</a>')), 4000);
+				Materialize.toast($(`<span>${$.i18n("g4d-toast-notsignedin")}</span>`).add($(`<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">${$.i18n("g4d-sign-in")}</a>`)), 4000);
 			} else {
-				Materialize.toast($('<span>Your session expired.</span>').add($('<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">Sign in</a>')), 4000);
+				Materialize.toast($(`<span>${$.i18n("g4d-toast-sessionexpired")}</span>`).add($(`<a href="#bottom-sheet" class="btn-flat toast-action modal-trigger" onclick="userInfo()">${$.i18n("g4d-sign-in")}</a>`)), 4000);
 			}
     } else {
     	clearTimeout(noResponseTimer);
@@ -714,12 +768,12 @@ function trySending(e) {
 	sendObservation(JSON.stringify(observationProperties), observationPhotos, (data, status) => {
 		console.log(status);
 		$("#bottom-sheet").modal("close");
-		Materialize.toast('Observation sent.', 4000);
+		Materialize.toast($.i18n("g4d-toast-observationsent"), 4000);
 		observationsLayer.addData(data);
 	}, (error) => {
 		console.log(error);
 		$("#bottom-sheet").modal("close");
-		Materialize.toast('Sending data failed. Retrying when online.', 4000);
+		Materialize.toast($.i18n("g4d-toast-datafailed-retry"), 4000);
 		let observations = JSON.parse(localStorage.observations);
 		observations.push(observationProperties)
 		localStorage.observations = JSON.stringify(observations);
@@ -749,12 +803,12 @@ function retrySending() {
 				}, (error) => {
 					checkConnection = undefined;
 					retrySending();
-					if (sentCount > 0) Materialize.toast(`Managed to send ${sentCount} observations. ${observations.length} remaining.`, 4000);
+					if (sentCount > 0) Materialize.toast($.i18n("g4d-toast-sent-n-observations", sentCount, observations.length), 4000);
 				});
 			}
 			if (observations.length == 0) {
 				checkConnection = undefined;
-				Materialize.toast(`All ${sentCount} remaining observations sent.`, 4000);
+				Materialize.toast($.i18n("g4d-toast-sent-all-observations", sentCount), 4000);
 			}
 		}
 

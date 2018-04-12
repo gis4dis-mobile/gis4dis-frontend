@@ -1,4 +1,4 @@
-const PRECACHE = 'precache-v5';
+const PRECACHE = 'precache-v6';
 const RUNTIME = 'runtime';
 const TILES = 'tiles';
 
@@ -58,6 +58,22 @@ self.addEventListener('fetch', event => {
         }
 
         return caches.open(RUNTIME).then(cache => {
+          return fetch(event.request).then(response => {
+            return cache.put(event.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
+      })
+    );
+  } else if (/(https:\/\/[a-c](.tile.openstreetmap.org|.osm.rrze.fau.de\/osmhd))/.test(event.request.url)) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return caches.open(TILES).then(cache => {
           return fetch(event.request).then(response => {
             return cache.put(event.request, response.clone()).then(() => {
               return response;
