@@ -7,7 +7,7 @@ window.fbAsyncInit = function() {
         version    : 'v2.12'
     });
 
-    FB.AppEvents.logPageView();
+    //FB.AppEvents.logPageView();
 
 };
 
@@ -20,8 +20,23 @@ window.fbAsyncInit = function() {
 }(document, 'script', 'facebook-jssdk'));
 
 function checkLoginState() {
+
     FB.getLoginStatus(function (response) {
-        console.log(response);
-        statusChangeCallback(response);
+        //console.log(response);
+        if (response.status === 'connected') {
+            //console.log(response.authResponse.accessToken);
+
+            FB.api('/me', { locale: 'en_US', fields: 'name, email' },
+                function(userInfo) {
+                    let email = userInfo.email;
+                    facebookLogin(response.authResponse.accessToken, email);
+                }
+            );
+
+        } else if (response.status === 'not_authorized') {
+            Materialize.toast('Login failed.', 4000);
+        } else {
+            Materialize.toast('Login failed.', 4000);
+        }
     });
 }

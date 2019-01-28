@@ -1,0 +1,27 @@
+{
+  "name": "Collect VGI with GIS4DIS",
+  "short_name": "GIS4DIS VGI",
+  "start_url": "./",
+  "display": "standalone",
+  "theme_color": "#3f51b5",
+  "background_color": "#3f51b5",
+  "manifest_version": 3,
+  "version": "301EA624-B14A-4908-932E-7C11D0119DF8",
+  "icons": [{
+      "src": "img/launcher-icon-1x.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    }, {
+      "src": "img/launcher-icon-2x.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    }, {
+      "src": "img/launcher-icon-4x.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }, {
+      "src": "img/launcher-icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }]
+}

@@ -1,26 +1,26 @@
 <div class="modal-content">
-  <h4>Registration</h4>
+  <h4 class="translate" data-args="g4d-registration">Registration</h4>
   <form id="registration" action="/rest-auth/registration/" method="POST" enctype="multipart/form-data" onsubmit="registration(); return false;">
     <div class="input-field">
       <input id="username" name="username" type="text" class="">
-      <label for="username">Username (Optional)</label>
+      <label for="username"><span class="translate" data-args="g4d-username">Username</span> (<span class="translate" data-args="g4d-optional">optional</span>)</label>
     </div>
     <div class="input-field">
       <input id="email" name="email" type="email" class="validate" required>
-      <label for="email">E-mail</label>
+      <label for="email" class="translate" data-args="g4d-email">E-mail</label>
     </div>
     <div class="input-field">
       <input id="password1" name="password1" type="password" class="validate" required>
-      <label for="password1">Password</label>
+      <label for="password1" class="translate" data-args="g4d-password">Password</label>
     </div>
     <div class="input-field">
       <input id="password2" name="password2" type="password" class="validate" required>
-      <label for="password2">Confirm password</label>
+      <label for="password2" class="translate" data-args="g4d-confirmpassword">Confirm password</label>
     </div>
-    <button class="btn waves-effect waves-light" type="submit" name="submit">Register
+    <button class="btn waves-effect waves-light translate" type="submit" name="submit" data-args="g4d-register">Register
       <i class="material-icons right">send</i>
     </button>
   </form>
   <br>
-  <a href="#" class="waves-effect waves-teal btn-flat" onclick="loadToBottomSheet('login.html')">Login</a>
+  <a href="#" class="waves-effect waves-teal btn-flat translate" onclick="loadToBottomSheet('login.html')" data-args="g4d-log-in">Log in</a>
 </div>
