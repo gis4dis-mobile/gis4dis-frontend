@@ -644,8 +644,17 @@ function loadToBottomSheet(template, label, callback) {
 }
 
 function showHint(theme) {
-	$('#hint .modal-content').html(`<h4>${$.i18n(theme.i18n_tag)}</h4>`);
-	$('#hint .modal-content').append($.i18n(theme.help[0].i18n_tag));
+    let hintSelector = $('#hint .modal-content');
+    if (theme instanceof Array) {
+        for (let i in theme) {
+            console.log(theme[i]);
+            hintSelector.append(`<h2>${$.i18n(theme[i].i18n_tag)}</h2>`);
+            hintSelector.append($.i18n(theme[i].help[0].i18n_tag));
+        }
+    } else {
+        hintSelector.append(`<h2>${$.i18n(theme.i18n_tag)}</h2>`);
+        hintSelector.append($.i18n(theme.help[0].i18n_tag));
+    }
 }
 
 function displayTooltips() {
