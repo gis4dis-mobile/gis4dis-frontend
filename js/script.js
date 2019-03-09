@@ -648,11 +648,11 @@ function showHint(theme) {
     if (theme instanceof Array) {
         for (let i in theme) {
             console.log(theme[i]);
-            hintSelector.append(`<h2>${$.i18n(theme[i].i18n_tag)}</h2>`);
+            hintSelector.append(`<h4>${$.i18n(theme[i].i18n_tag)}</h4>`);
             hintSelector.append($.i18n(theme[i].help[0].i18n_tag));
         }
     } else {
-        hintSelector.append(`<h2>${$.i18n(theme.i18n_tag)}</h2>`);
+        hintSelector.append(`<h4>${$.i18n(theme.i18n_tag)}</h4>`);
         hintSelector.append($.i18n(theme.help[0].i18n_tag));
     }
 }
